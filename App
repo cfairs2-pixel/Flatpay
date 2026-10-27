@@ -1,0 +1,58 @@
+# Flatpay sales workspace
+
+A local, single-user sales tracker for a Flatpay field salesperson. React/Vite frontend; Node HTTP API; SQLite persistence. Requires Node **24+** (the prepared cloud runtime is 24.19.0).
+
+## Run
+
+```sh
+cd /workspace/Flatpay
+npm ci
+npm run dev
+```
+
+The server uses port 3000 and binds to loopback by default. Development runs the React frontend and API in the same process. For production assets, run `npm run build` followed by `npm start`.
+
+This is a local workspace, with no authentication or multi-user isolation. Do not expose it publicly with customer data. A shared deployment needs authentication, access controls, a protected persistent database and appropriate backups. `HOST`, `PORT`, `DATA_DIR` and a comma-separated `ALLOWED_HOSTS` are optional deployment settings. Do not change these merely to make a public preview.
+
+## Use
+
+- The initial demo contains **fictional merchants**. “Start my workspace” switches to real records. “Add merchant” starts a real record even while viewing demo data. Demo edits remain in memory for that session.
+- Merchant details include business/contact, meeting date, provider, status and next steps.
+- Statement inputs use **one month and the same period**. Total transaction value and charges include Amex. The current effective rate is charges / transaction value × 100. Business, international and Amex shares use transaction **value**, not counts, and can overlap.
+- Record each AC as a separate offer with rates, approving manager, date, link, hardware quantities and notes. Selecting an offer controls the displayed proposed rate. Preserve earlier offers when adding revisions.
+- POS Premium and POS Pro bundles include a terminal. “Terminal only” records additional standalone terminals. Additional hardware quantities/price agreements can be recorded as text.
+- Savings are **processing-only estimates** using the proposed non-Amex and Amex rates. They exclude rentals, hardware, extra fees and surcharge effects. Missing Amex pricing leaves the estimate incomplete.
+- Changing status to **Won** opens sale details. Save the signature date, contract details and checklist progress. A win with incomplete checks is marked awaiting completion. Recording a win does not submit it to Flatpay or mark KYC as approved.
+- Store supporting contracts, identity, address and bank documents in the authorised Flatpay systems. This app records completion and references only.
+- Export downloads a JSON copy of the currently displayed workspace. Keep backups secure. The database is `.data/flatpay.sqlite` by default and is ignored by Git. A proper database backup must include SQLite WAL consistency (stop the app before copying its data directory).
+
+## Commission
+
+The official calculator supplied by the user is at `https://sm-commission.pages.dev/SM_1_Introduction`. Its current rate table has **not been retrieved or verified** because the runtime network policy does not yet allow that domain. No password is stored in this repository.
+
+Monthly confirmed totals are **manually confirmed commission on sales won in the selected month**, not a payroll forecast. Use the official calculator or manager to verify the total.
+
+Separately, the app estimates milestone earnings from manually entered, manager-verified base and bonus amounts, following the written Day 3 training rules:
+
+- Installation qualification: installation and at least £125 transacted; 50% of base plus applicable installation bonuses.
+- Remaining 50% of base: rolling 30-day TPV reaches signed TPV.
+- Upfront POS: 15% of the full price once Flatpay is paid in full.
+- Earning components are due in the following month. Separate qualifying dates determine payout month. No deductions, clawbacks or undocumented rule tables are assumed.
+
+Unknown amounts remain unknown. Enter an explicit 0 for a component that does not apply. Milestone estimates do not automatically confirm commission. The training has an arithmetic discrepancy in one POS example; calculations follow its written 15% rule. Verify current rules with the official calculator/manager.
+
+See [sales process source notes](docs/sales-process.md) for the training-based workflow and document caveats.
+
+## Validate
+
+```sh
+npm test
+npm run build
+npm run test:e2e
+```
+
+Unit tests cover effective rates, overlapping card categories, multi-offer calculations, commission milestones and invalid data. API tests exercise SQLite persistence after restart, CRUD, export and validation. Browser tests use an isolated SQLite test directory and system Chromium (`/usr/bin/chromium`) to exercise the application. The managed tool sandbox may require elevated execution for local socket/browser operations.
+
+## Cloud environment
+
+Use the existing checkout at `/workspace/Flatpay`. Each cloud task is already isolated; do not create a Git worktree unless the user explicitly requests one. Dependencies and built assets can be retained in the published snapshot, but the server process must restart in each new task. Install/start instructions are saved in the environment draft; saving that draft does not publish or apply it.
