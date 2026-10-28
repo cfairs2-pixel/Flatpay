@@ -1,0 +1,34 @@
+{
+  "name": "myflatpay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "build": "vite build",
+    "start": "NODE_ENV=production node server.mjs",
+    "test": "node --test --test-isolation=none tests/*.test.mjs",
+    "test:e2e": "playwright test",
+    "format": "prettier --write src shared tests server.mjs vite.config.mjs playwright.config.mjs README.md docs package.json",
+    "format:check": "prettier --check src shared tests server.mjs vite.config.mjs playwright.config.mjs README.md docs package.json",
+    "build:pages": "node scripts/build-pages.mjs",
+    "build:cloud": "vite build --mode cloud --outDir dist-cloud",
+    "start:cloud": "NODE_ENV=production node server-cloud.mjs"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "5.0.4",
+    "lucide-react": "0.468.0",
+    "mammoth": "1.13.0",
+    "pdf-parse": "2.4.5",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "vite": "7.1.12"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "prettier": "3.6.2"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

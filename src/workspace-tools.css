@@ -1,0 +1,275 @@
+.tools-intro {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 24px;
+  background: var(--fp-mint, #c9e6d1);
+  border-radius: 14px;
+  margin: 24px 0;
+}
+.tools-intro-icon {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+}
+.tools-intro p {
+  color: #454545;
+  margin-top: 5px;
+  max-width: 780px;
+}
+.tools-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr));
+  gap: 18px;
+  margin: 22px 0;
+}
+.tool-record-card {
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--fp-line, #ddd);
+  border-radius: 12px;
+  padding: 24px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tool-record-card:hover {
+  box-shadow: 0 6px 20px #0000000c;
+  border-color: #111;
+}
+.tool-record-card h3 {
+  font-size: 19px;
+}
+.tool-record-card p {
+  color: #666;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+.tool-record-action {
+  margin-top: auto;
+  padding-top: 14px;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tool-merchant-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.merchant-note-picker {
+  margin: 25px 0;
+}
+.notepad-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fffdf8;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+.note-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  font-weight: 700;
+  color: #666;
+}
+.lined-notes {
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 27px,
+    #e8e5dc 28px
+  );
+  line-height: 28px !important;
+  padding-top: 0 !important;
+  border: 0 !important;
+  resize: vertical;
+}
+.tool-caption {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.6;
+  margin-top: 12px;
+}
+.offer-paper {
+  margin: 26px 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 6px 24px #00000008;
+  padding: 30px;
+  border-top: 7px solid #111;
+}
+.paper-brand {
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: -1.4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.paper-brand span {
+  font-size: 9px;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+.offer-paper h2 {
+  font-size: 25px;
+  margin-top: 35px;
+}
+.offer-paper > p {
+  color: #666;
+  margin-top: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.proposal-big-rate {
+  background: var(--fp-pink, #fedeec);
+  font-size: 42px;
+  font-weight: 750;
+  letter-spacing: -1.5px;
+  padding: 25px;
+  margin: 25px 0;
+}
+.proposal-big-rate small {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0;
+  font-weight: 400;
+  margin-top: 5px;
+}
+.proposal-businesses > div {
+  display: grid;
+  gap: 7px;
+  border-bottom: 1px solid #ddd;
+  padding: 16px 0;
+}
+.proposal-businesses small {
+  color: #666;
+}
+.offer-paper .paper-footnote {
+  font-size: 11px;
+  margin-top: 25px;
+}
+.closing-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--fp-pink, #fedeec);
+  padding: 22px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+.closing-intro svg {
+  flex-shrink: 0;
+}
+.closing-intro p {
+  margin-top: 7px;
+  color: #454545;
+}
+.offer-sheet-tool > .button,
+.closing-intro ~ .button {
+  margin-top: 20px;
+}
+.offer-sheet-tool .field,
+.notepad-card .field {
+  margin-bottom: 16px;
+}
+.offer-sheet-tool .field input,
+.notepad-card .field input {
+  width: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 11px 12px;
+}
+.proposal-businesses span {
+  font-size: 13px;
+}
+.meeting-notepad .split {
+  align-items: flex-start;
+  gap: 16px;
+}
+.meeting-notepad .split .button {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .tools-intro {
+    align-items: flex-start;
+    padding: 20px;
+    gap: 13px;
+  }
+  .tools-intro-icon {
+    padding: 10px;
+  }
+  .tools-intro h2 {
+    font-size: 17px;
+  }
+  .offer-paper {
+    padding: 20px;
+  }
+  .paper-brand {
+    font-size: 23px;
+    flex-wrap: wrap;
+  }
+  .notepad-card {
+    padding: 15px;
+  }
+  .meeting-notepad .split {
+    flex-direction: column;
+  }
+  .tool-record-card {
+    padding: 20px;
+  }
+}
+.provider-cell {
+  min-width: 130px;
+  font-weight: 600;
+}
+.condukt-import {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.condukt-import > p {
+  margin: 12px 0;
+  color: #666;
+}
+.condukt-import .field {
+  margin: 16px 0;
+}
+.condukt-import > small {
+  display: block;
+  margin-top: 16px;
+  color: #666;
+  line-height: 1.6;
+}
+.condukt-case {
+  padding: 24px;
+}
+.condukt-case > small {
+  display: block;
+  margin: 10px 0;
+  color: #666;
+}
+.condukt-case > p {
+  margin: 10px 0;
+}
+.cloud-import-button {
+  margin: 28px 0;
+  cursor: pointer;
+}
+
+.cloud-app .sidebar {
+  overflow-y: auto;
+}

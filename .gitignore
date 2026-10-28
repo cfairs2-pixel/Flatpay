@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.data/
+playwright-report/
+test-results/
+.env
+*.log
+work/
+dist-pages/
+dist-cloud/
+.data-cloud/

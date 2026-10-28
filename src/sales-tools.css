@@ -1,0 +1,160 @@
+/* Meeting notes, AC bundles and customer proposal tools. */
+.field > input {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 11px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  font-weight: 400;
+}
+.field > input:focus {
+  border-color: #111;
+  outline-offset: 2px;
+}
+.field > input::placeholder {
+  color: #888;
+  font-size: 13px;
+}
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 20px 0;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.check-row > input {
+  width: 17px;
+  height: 17px;
+  margin: 2px 0 0;
+  flex: 0 0 auto;
+  accent-color: #111;
+}
+.check-row strong {
+  display: block;
+  color: #111;
+  font-weight: 600;
+}
+.check-row small {
+  display: block;
+  color: #666;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.ac-details {
+  border-top: 1px solid #ddd;
+  padding-top: 25px;
+  margin: 24px 0 5px;
+}
+.ac-help,
+.tool-caption {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.7;
+}
+.ac-help {
+  margin: -3px 0 20px;
+}
+.bundle-toggle {
+  border: 1px solid #e5cad6;
+  padding: 16px;
+  border-radius: 7px;
+  background: #fff2f8;
+}
+.bundle-businesses {
+  padding-top: 10px;
+}
+.bundle-businesses .form-section-title h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bundle-businesses .form-section-title.split {
+  align-items: flex-start;
+}
+.bundle-businesses .form-section-title.split > div {
+  min-width: 0;
+}
+.bundle-businesses .form-section-title.split > button {
+  flex-shrink: 0;
+}
+.bundle-business {
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  padding: 18px;
+  margin-bottom: 15px;
+  background: #fafafa;
+}
+.bundle-business-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 19px;
+  font-size: 12px;
+}
+.bundle-business-heading > strong {
+  display: inline-flex;
+  background: #e1ece4;
+  border-radius: 4px;
+  padding: 6px 9px;
+  font-weight: 600;
+  color: #2e4936;
+}
+.bundle-business .form-grid {
+  margin-bottom: 0;
+  gap: 16px;
+}
+.bundle-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0 16px;
+}
+.bundle-summary > div {
+  background: #c9e6d1;
+  padding: 16px 14px;
+  border-radius: 7px;
+}
+.bundle-summary span {
+  display: block;
+  font-size: 11px;
+  color: #33513c;
+  line-height: 1.5;
+}
+.bundle-summary strong {
+  display: block;
+  color: #173520;
+  font-size: 21px;
+  letter-spacing: -0.5px;
+  margin-top: 10px;
+}
+@media (max-width: 720px) {
+  .bundle-businesses .form-section-title.split {
+    flex-wrap: wrap;
+  }
+  .bundle-business {
+    padding: 15px;
+  }
+  .bundle-summary {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+  .bundle-summary > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 14px;
+  }
+  .bundle-summary strong {
+    margin: 0;
+    font-size: 20px;
+    text-align: right;
+  }
+}
