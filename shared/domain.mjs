@@ -1,4 +1,5 @@
 /** Pure calculations shared by the tracker UI and server. Percentages use 1.5 for 1.5%. */
+import { validateStatementAnalysis } from "./merchant-statement.mjs";
 const finite = (value) =>
   (typeof value === "number" ||
     (typeof value === "string" && value.trim() !== "")) &&
@@ -212,6 +213,8 @@ export function validateDeal(deal) {
     validateText(errors, deal[key], key);
   }
   validateText(errors, deal.notes, "Notes", 10000);
+  if (!blank(deal.statementAnalysis))
+    errors.push(...validateStatementAnalysis(deal.statementAnalysis));
   if (
     !blank(deal.email) &&
     (typeof deal.email !== "string" ||

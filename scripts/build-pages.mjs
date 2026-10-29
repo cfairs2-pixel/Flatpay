@@ -37,6 +37,9 @@ await writeFile("work/pages-site/index.html", html);
 await writeFile("work/pages-site/.nojekyll", "");
 await copyFile("public/favicon.svg", "work/pages-site/favicon.svg");
 await cp("public/ocr", "work/pages-site/ocr", { recursive: true });
+await cp("public/statement-reader", "work/pages-site/statement-reader", {
+  recursive: true,
+});
 console.log(
   `Prepared self-contained myflatpay Pages build (${Buffer.byteLength(html)} bytes).`,
 );

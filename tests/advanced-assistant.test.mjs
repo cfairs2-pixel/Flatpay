@@ -99,6 +99,34 @@ const response = (value) => ({
   }),
 });
 
+test("assistant includes reviewed statement run-rate figures separately from declared commission TPV", () => {
+  const context = buildAssistantContext(
+    input({
+      deals: [
+        merchant({
+          statementAnalysis: {
+            version: 1,
+            currency: "GBP",
+            reviewedAt: "2026-10-29T12:00:00.000Z",
+            values: {
+              periodMonths: 3,
+              turnover: 150000,
+              totalCharges: 2250,
+              transactionCount: 3000,
+            },
+          },
+        }),
+      ],
+    }),
+    { today },
+  );
+  const snapshot = context.selectedMerchant.statement.reviewedUpload;
+  assert.equal(snapshot.figures.annualTpv, 600000);
+  assert.equal(snapshot.figures.effectiveRate, 1.5);
+  assert.equal(snapshot.figures.averageTransactionValue, 50);
+  assert.equal(context.selectedMerchant.commission.declaredAnnualTpv, 120000);
+});
+
 // Named selection and persisted context are functional requirements, not just request-shape checks.
 test("advanced assistant resolves punctuation in named merchants and supplies their recorded objections and bundle terms", () => {
   const context = buildAssistantContext(input(), { today });

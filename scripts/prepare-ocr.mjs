@@ -1,6 +1,7 @@
 import { mkdir, copyFile, writeFile, readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
+import "./prepare-statement-reader.mjs";
 const output = "public/ocr";
 await mkdir(path.join(output, "core"), { recursive: true });
 await mkdir(path.join(output, "lang"), { recursive: true });

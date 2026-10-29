@@ -4,6 +4,10 @@ import { estimateCurrentCommission } from "./official-milestones.mjs";
 import { summarizeBundle } from "./sales-tools.mjs";
 import { conduktDocumentSummary, validateConduktUrl } from "./condukt.mjs";
 import {
+  calculateStatement,
+  validateStatementAnalysis,
+} from "./merchant-statement.mjs";
+import {
   computeAssistantMetrics,
   followUpDate,
   londonToday,
@@ -393,6 +397,19 @@ function merchantContext(deal, today) {
       amexShare:
         volume > 0 && num(deal.amexVolume) !== null ? calc.amexShare : null,
       currentAmexRate: num(deal.amexRate),
+      reviewedUpload:
+        deal.statementAnalysis &&
+        validateStatementAnalysis(deal.statementAnalysis).length === 0
+          ? {
+              reviewedAt: deal.statementAnalysis.reviewedAt,
+              periodStart: deal.statementAnalysis.values.periodStart || null,
+              periodEnd: deal.statementAnalysis.values.periodEnd || null,
+              periodMonths: num(deal.statementAnalysis.values.periodMonths),
+              figures: calculateStatement(deal.statementAnalysis.values),
+              caveat:
+                "User-reviewed statement snapshot. Annual TPV is a run-rate estimate, not a contractual declaration. Later manual monthly figures may differ. No original statement or account identifiers are provided.",
+            }
+          : null,
       caveat:
         "Current effective rate is charges divided by volume for the recorded month. Shares are transaction value and may overlap.",
     },

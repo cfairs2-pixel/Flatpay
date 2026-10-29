@@ -1,0 +1,383 @@
+.merchant-statement {
+  border: 1px solid #dedede;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 30px;
+  background: #fff;
+}
+.statement-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 20px;
+}
+.statement-heading > span {
+  display: grid;
+  place-items: center;
+  background: #fedeec;
+  padding: 13px;
+  border-radius: 11px;
+  flex-shrink: 0;
+}
+.statement-heading h3 {
+  font-size: 21px;
+  letter-spacing: -0.5px;
+}
+.statement-heading p,
+.statement-review > p {
+  margin-top: 6px;
+  color: #626262;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.statement-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.merchant-statement .button {
+  min-height: 46px;
+  justify-content: center;
+  white-space: normal;
+}
+.statement-format-hint {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #707070;
+  margin: 9px 0 16px;
+}
+.statement-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.statement-privacy {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  border-radius: 9px;
+  background: #edf7f0;
+  padding: 13px;
+  margin: 16px 0;
+}
+.statement-privacy svg,
+.statement-notice svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.statement-privacy p {
+  color: #36523f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.statement-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px;
+  background: #f6f6f6;
+  border-radius: 9px;
+  margin: 16px 0;
+}
+.statement-file > svg {
+  flex-shrink: 0;
+}
+.statement-file > span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.statement-file > button {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 8px;
+  background: #fff;
+}
+.statement-read,
+.statement-apply {
+  width: 100%;
+  margin: 5px 0 12px;
+}
+.statement-progress {
+  padding: 15px;
+  background: #f6f6f6;
+  border-radius: 10px;
+  margin: 16px 0;
+}
+.statement-progress > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+}
+.statement-progress button {
+  min-height: 44px;
+  padding: 5px 10px;
+  text-decoration: underline;
+}
+.statement-progress progress {
+  width: 100%;
+  height: 8px;
+  accent-color: #111;
+  margin: 8px 0;
+}
+.statement-progress small {
+  font-size: 11px;
+  color: #666;
+}
+.statement-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  background: #edf7f0;
+  padding: 13px;
+  border-radius: 9px;
+  margin: 15px 0;
+}
+.statement-saved {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+  margin-top: 18px;
+  font-size: 12px;
+}
+.statement-saved p {
+  color: #666;
+  line-height: 1.5;
+  margin-top: 5px;
+}
+.statement-review {
+  padding-top: 22px;
+  margin-top: 20px;
+  border-top: 1px solid #dedede;
+}
+.statement-review > h3,
+.statement-calculations h3 {
+  font-size: 18px;
+  letter-spacing: -0.3px;
+}
+.statement-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  margin: 15px 0;
+}
+.statement-field {
+  min-width: 0;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  padding: 12px;
+}
+.statement-field.statement-existing {
+  border-color: #dcc994;
+  background: #fffcf5;
+}
+.statement-field-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.statement-field-toggle input,
+.statement-confirm input {
+  width: 19px;
+  height: 19px;
+  accent-color: #111;
+  flex-shrink: 0;
+}
+.statement-field .statement-value {
+  width: 100%;
+  max-width: 100%;
+  min-height: 47px;
+  border: 1px solid #d4d4d4;
+  border-radius: 7px;
+  padding: 10px;
+  font: inherit;
+  font-size: 16px;
+  background: #fff;
+  color: #111;
+  box-sizing: border-box;
+}
+.statement-field small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #6a6a6a;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+}
+.statement-field .statement-replace {
+  color: #806120;
+}
+.statement-detail {
+  border-top: 1px solid #e6e6e6;
+  margin-top: 17px;
+  padding-top: 5px;
+}
+.statement-detail > summary {
+  min-height: 48px;
+  display: list-item;
+  align-content: center;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.statement-detail > p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #666;
+  margin: 5px 0 12px;
+}
+.statement-warnings {
+  background: #fff8e9;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 18px 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #705721;
+}
+.statement-warnings ul {
+  margin: 7px 0 0;
+  padding-left: 18px;
+}
+.statement-warnings li + li {
+  margin-top: 5px;
+}
+.statement-calculations {
+  background: #f6f6f6;
+  border-radius: 11px;
+  padding: 20px;
+  margin: 20px 0;
+}
+.statement-calculations dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+  margin: 16px 0;
+}
+.statement-calculations dl > div {
+  min-width: 0;
+}
+.statement-calculations .statement-result-main {
+  grid-column: 1/-1;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 16px;
+}
+.statement-calculations dt {
+  font-size: 11px;
+  color: #626262;
+  line-height: 1.5;
+}
+.statement-calculations dd {
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.3px;
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+.statement-calculations .statement-result-main dd {
+  font-size: 32px;
+}
+.statement-calculations > p {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.6;
+  margin-top: 16px;
+}
+.statement-missing {
+  background: #fff8e9;
+  padding: 13px;
+  border-radius: 9px;
+  font-size: 12px;
+  color: #705721;
+  line-height: 1.5;
+  margin: 15px 0;
+}
+.statement-confirm {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 56px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 15px 0;
+  cursor: pointer;
+}
+.statement-text textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #ccc;
+  border-radius: 9px;
+  padding: 12px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  margin: 10px 0 13px;
+}
+@media (max-width: 600px) {
+  .merchant-statement {
+    padding: 17px 14px;
+    margin-bottom: 25px;
+  }
+  .statement-heading {
+    gap: 10px;
+  }
+  .statement-heading > span {
+    padding: 10px;
+  }
+  .statement-heading h3 {
+    font-size: 19px;
+  }
+  .statement-heading p {
+    font-size: 12px;
+  }
+  .statement-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .statement-actions .button {
+    font-size: 13px;
+    width: 100%;
+  }
+  .statement-fields {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+  .statement-calculations {
+    padding: 16px 13px;
+  }
+  .statement-calculations dl {
+    gap: 16px 10px;
+  }
+  .statement-calculations dd {
+    font-size: 15px;
+  }
+  .statement-confirm {
+    font-size: 12px;
+  }
+  .statement-text textarea {
+    font-size: 16px;
+  }
+  .statement-detail > summary {
+    font-size: 13px;
+  }
+  .statement-field-toggle {
+    font-size: 13px;
+  }
+}

@@ -58,6 +58,7 @@ import "./workspace-tools.css";
 import "./sales-tools.css";
 import PortfolioCalculator from "./PortfolioCalculator.jsx";
 import DocumentCapture from "./DocumentCapture.jsx";
+import MerchantStatement from "./MerchantStatement.jsx";
 import "./styles.css";
 import { installPagesApi } from "./pages-api.mjs";
 const pagesMode = import.meta.env.MODE === "pages";
@@ -1320,7 +1321,7 @@ function DealEditor({
                     className="text-button"
                     onClick={() => setTab("Statement")}
                   >
-                    Compare rates
+                    Upload a statement
                     <ArrowRight size={15} />
                   </button>
                 </div>
@@ -1462,11 +1463,16 @@ function DealEditor({
             )}
             {tab === "Statement" && (
               <>
+                <MerchantStatement
+                  deal={d}
+                  onApply={(patch) => setD((s) => ({ ...s, ...patch }))}
+                />
                 <div className="form-section-title">
-                  <h3>Understand their current costs</h3>
+                  <h3>Monthly figures</h3>
                   <p>
-                    Use one month’s statement, including Amex in total value and
-                    total charges.
+                    Upload a statement above or enter these figures yourself.
+                    Use the same month for turnover, charges and card values,
+                    including Amex where it is covered by the statement.
                   </p>
                 </div>
                 <div className="form-grid">

@@ -30,6 +30,25 @@ const merchant = (overrides = {}) => ({
   ...overrides,
 });
 
+test("reviewed statement figures validate without storing source documents", () => {
+  const statementAnalysis = {
+    version: 1,
+    currency: "GBP",
+    reviewedAt: "2026-10-29T12:00:00.000Z",
+    values: { turnover: 50000, totalCharges: 750, periodMonths: 1 },
+  };
+  assert.deepEqual(validateDeal(merchant({ statementAnalysis })), []);
+  for (const invalid of [
+    { ...statementAnalysis, rawText: "Private account details" },
+    { ...statementAnalysis, values: { turnover: -1 } },
+    { ...statementAnalysis, values: { periodMonths: 0 } },
+    { ...statementAnalysis, values: { accountNumber: "12345678" } },
+    { ...statementAnalysis, currency: "USD" },
+  ]) {
+    assert.ok(validateDeal(merchant({ statementAnalysis: invalid })).length);
+  }
+});
+
 test("effective rate uses total charges divided by transaction value times 100", () => {
   assert.equal(effectiveRate(750, 50000), 1.5);
   assert.ok(Math.abs(effectiveRate("125.50", "10000") - 1.255) < 1e-12);

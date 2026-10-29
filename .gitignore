@@ -10,3 +10,4 @@ dist-pages/
 dist-cloud/
 .data-cloud/
 public/ocr/
+public/statement-reader/
