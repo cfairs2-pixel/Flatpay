@@ -1,4 +1,4 @@
-import { monthlySummary, validateDeal } from "./domain.mjs";
+import { monthlySummary } from "./domain.mjs";
 import { estimateCurrentCommission } from "./official-milestones.mjs";
 
 const isObject = (value) =>
@@ -49,24 +49,21 @@ export function validateChatInput(input, today = londonToday()) {
     (typeof input.notes !== "string" || input.notes.length > 10000)
   )
     fail("Meeting notes must be text of at most 10,000 characters.");
-  if (input.demo !== undefined && typeof input.demo !== "boolean")
-    fail("Demo mode must be true or false.");
-  if (input.deals !== undefined && input.demo !== true)
-    fail("Client-supplied merchants are only accepted for demo mode.");
-  if (
-    input.demo === true &&
-    (!Array.isArray(input.deals) ||
-      input.deals.length > 200 ||
-      input.deals.some((deal) => validateDeal(deal).length))
-  )
-    fail("Send up to 200 valid demo merchants.");
+  if (input.demo === true)
+    fail(
+      "Demo mode is no longer available. The assistant uses your saved workspace.",
+    );
+  if (input.demo !== undefined && input.demo !== false)
+    fail("The assistant uses only saved workspace data.");
+  if (Object.hasOwn(input, "deals"))
+    fail(
+      "Client-supplied merchants are not accepted. The assistant uses your saved workspace.",
+    );
   return {
     message: input.message.trim(),
     month,
     dealId: input.dealId || null,
     notes: input.notes || "",
-    demo: input.demo === true,
-    deals: input.demo === true ? input.deals : undefined,
   };
 }
 

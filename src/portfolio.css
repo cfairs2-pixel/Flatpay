@@ -569,3 +569,75 @@
 .portfolio-footnote a {
   color: #222;
 }
+
+@media (max-width: 720px) {
+  .portfolio-calculator {
+    margin-top: 14px;
+  }
+  .portfolio-heading {
+    padding: 18px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .portfolio-heading h2 {
+    font-size: 19px;
+  }
+  .portfolio-heading p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .portfolio-source {
+    font-size: 11px;
+    white-space: normal;
+  }
+  .portfolio-scenario-bar {
+    padding: 0 18px 16px;
+    align-items: stretch;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .portfolio-scenario-bar > div {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 7px;
+  }
+  .portfolio-scenario-bar > div > button,
+  .portfolio-reset {
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 12px;
+    white-space: normal;
+  }
+  .portfolio-input-card {
+    padding: 16px 14px;
+    gap: 0 13px;
+  }
+  .portfolio-field > label,
+  .portfolio-bonus-inputs > p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .portfolio-input-wrap > input {
+    min-height: 48px;
+    font-size: 16px;
+    padding: 12px 10px;
+  }
+  .portfolio-input-wrap > span {
+    font-size: 13px;
+  }
+  .portfolio-bonus-grid {
+    grid-template-columns: 1fr;
+  }
+  .portfolio-target-explainer p,
+  .portfolio-field > small,
+  .portfolio-result-hero > small,
+  .portfolio-breakdown,
+  .portfolio-footnote p {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .portfolio-breakdown > div {
+    padding: 10px 0;
+  }
+}

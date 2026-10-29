@@ -1,0 +1,337 @@
+.document-capture {
+  max-width: 760px;
+  margin: auto;
+}
+.capture-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.capture-heading h3 {
+  font-size: 22px;
+  letter-spacing: -0.7px;
+}
+.capture-heading p {
+  color: #666;
+  margin-top: 6px;
+}
+.capture-heading-icon {
+  background: #fedeec;
+  padding: 13px;
+  border-radius: 12px;
+  display: flex;
+  flex-shrink: 0;
+}
+.capture-types {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.capture-types button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 85px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 13px 8px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.capture-types button.selected {
+  background: #111;
+  color: white;
+  border-color: #111;
+}
+.capture-privacy {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  padding: 13px 14px;
+  background: #edf7f0;
+  border-radius: 9px;
+  margin-bottom: 18px;
+}
+.capture-privacy svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.capture-privacy p {
+  font-size: 12px;
+  color: #35513e;
+  line-height: 1.5;
+}
+.capture-tips {
+  margin: 16px 0;
+}
+.capture-tips strong {
+  font-size: 14px;
+}
+.capture-tips p {
+  font-size: 12px;
+  color: #777;
+  margin-top: 4px;
+}
+.capture-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.capture-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 18px 0;
+}
+.capture-actions .button {
+  justify-content: center;
+  min-height: 49px;
+  font-size: 14px;
+}
+.capture-photo {
+  position: relative;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+}
+.capture-photo img {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+}
+.capture-remove {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #111;
+  color: white;
+  box-shadow: 0 2px 8px #0002;
+}
+.capture-read,
+.capture-apply {
+  width: 100%;
+  justify-content: center;
+  min-height: 48px;
+  margin: 8px 0 15px;
+}
+.capture-progress {
+  background: #f7f7f7;
+  border: 1px solid #e3e3e3;
+  padding: 17px;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+.capture-progress > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.capture-progress strong {
+  font-size: 13px;
+}
+.capture-progress button {
+  font-size: 12px;
+  text-decoration: underline;
+  min-height: 32px;
+  padding: 4px 8px;
+}
+.capture-progress progress {
+  width: 100%;
+  height: 7px;
+  accent-color: #111;
+  display: block;
+  margin: 10px 0;
+}
+.capture-progress small {
+  font-size: 11px;
+  color: #666;
+}
+.capture-review {
+  margin: 25px 0;
+  border-top: 1px solid #ddd;
+  padding-top: 22px;
+}
+.capture-review-heading h3 {
+  font-size: 18px;
+}
+.capture-review-heading small {
+  display: block;
+  color: #666;
+  line-height: 1.5;
+  margin-top: 7px;
+}
+.capture-suggestion {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 13px 0;
+  background: #fff;
+}
+.capture-suggestion.has-conflict {
+  border-color: #dec994;
+  background: #fffdf7;
+}
+.capture-field-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 11px;
+  cursor: pointer;
+  min-height: 32px;
+}
+.capture-field-choice input {
+  width: 20px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  accent-color: #111;
+  flex-shrink: 0;
+}
+.capture-field-choice strong {
+  font-size: 13px;
+}
+.capture-field-choice small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #666;
+}
+.capture-suggestion > input {
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 11px 12px;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 15px;
+  min-width: 0;
+  color: #111;
+}
+.capture-existing {
+  display: block;
+  margin-top: 8px;
+  color: #7d5b17;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+.capture-source {
+  display: block;
+  margin-top: 8px;
+  color: #777;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.capture-warning {
+  font-size: 12px;
+  color: #6d5726;
+  background: #fff7df;
+  border-radius: 7px;
+  padding: 11px 13px;
+  margin: 10px 0;
+  line-height: 1.5;
+}
+.capture-text {
+  border-top: 1px solid #e4e4e4;
+  padding-top: 16px;
+  margin: 22px 0;
+}
+.capture-text summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  min-height: 36px;
+}
+.capture-text .field {
+  margin: 13px 0;
+}
+.capture-text textarea {
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.capture-text > small {
+  display: block;
+  margin: 10px 0;
+  font-size: 11px;
+  color: #666;
+}
+.capture-clear {
+  margin-bottom: 16px;
+}
+.capture-footnote {
+  font-size: 11px;
+  color: #777;
+  line-height: 1.5;
+  margin: 15px 0;
+}
+.capture-notice {
+  align-items: flex-start;
+}
+.capture-notice svg {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .capture-heading h3 {
+    font-size: 21px;
+  }
+  .capture-heading p {
+    font-size: 13px;
+  }
+  .capture-heading-icon {
+    padding: 10px;
+  }
+  .capture-types {
+    gap: 7px;
+  }
+  .capture-types button {
+    font-size: 12px;
+    min-height: 82px;
+    padding: 10px 5px;
+  }
+  .capture-actions {
+    gap: 8px;
+  }
+  .capture-actions .button {
+    font-size: 14px;
+    padding: 13px 8px;
+  }
+  .capture-photo img {
+    max-height: 290px;
+  }
+  .capture-suggestion {
+    padding: 13px;
+  }
+  .capture-suggestion > input,
+  .capture-text textarea {
+    font-size: 16px;
+  }
+  .capture-types button,
+  .capture-clear {
+    min-height: 44px;
+  }
+  .capture-text summary {
+    min-height: 44px;
+  }
+}

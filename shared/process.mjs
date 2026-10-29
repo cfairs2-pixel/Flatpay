@@ -89,6 +89,13 @@ export const SALE_FIELDS = [
     label: "Authorised signatory name(s)",
     required: true,
   },
+
+  {
+    key: "signatoryAddress",
+    label: "Signatory home address",
+    type: "text",
+    required: false,
+  },
   {
     key: "signatureDate",
     label: "Contract signature date",

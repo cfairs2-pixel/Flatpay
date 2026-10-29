@@ -256,10 +256,7 @@ export function createPagesFetch({
         return response(200, { ok: true });
       }
       if (method === "GET" && pathname === "/api/assistant") {
-        const saved =
-          url.searchParams.get("demo") === "true"
-            ? defaults()
-            : assistantState();
+        const saved = assistantState();
         return response(200, {
           mode: "local",
           model: null,
@@ -271,8 +268,8 @@ export function createPagesFetch({
       }
       if (method === "POST" && pathname === "/api/assistant/chat") {
         const request = validateChatInput(await json(req), londonToday(now()));
-        const saved = request.demo ? defaults() : assistantState();
-        const deals = request.demo ? request.deals : list(dealEnvelope());
+        const saved = assistantState();
+        const deals = list(dealEnvelope());
         const deal = request.dealId
           ? deals.find((d) => d.id === request.dealId)
           : null;
@@ -295,7 +292,7 @@ export function createPagesFetch({
           preferences: saved.preferences,
         });
         const answer = { ...result, mode: result.mode || "local", metrics };
-        if (!request.demo) {
+        {
           const stamp = now().toISOString();
           const message = {
             id: randomUUID(),

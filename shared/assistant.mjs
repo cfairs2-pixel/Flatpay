@@ -80,12 +80,12 @@ export function createAssistantService(
       ? model
       : DEFAULT_ASSISTANT_MODEL;
   return {
-    status: ({ demo = false } = {}) => ({
+    status: () => ({
       mode: configured ? "ai" : "local",
       model: configured ? safeModel : null,
-      messages: demo ? [] : history(),
-      preferences: demo ? [] : preferences(),
-      targets: demo ? { sales: null, commission: null } : targets(),
+      messages: history(),
+      preferences: preferences(),
+      targets: targets(),
     }),
     addPreference(input) {
       if (
@@ -124,18 +124,18 @@ export function createAssistantService(
     async chat(input) {
       const today = londonToday(now());
       const request = validateChatInput(input, today);
-      const deals = request.demo ? request.deals : listDeals();
+      const deals = listDeals();
       const deal = request.dealId
         ? deals.find((item) => item.id === request.dealId)
         : null;
       if (request.dealId && !deal)
         fail("Selected merchant was not found. Save the merchant first.", 404);
-      const savedPreferences = request.demo ? [] : preferences();
-      const knowledge = request.demo ? [] : await getKnowledge();
+      const savedPreferences = preferences();
+      const knowledge = await getKnowledge();
       const metrics = computeAssistantMetrics(
         deals,
         request.month,
-        request.demo ? { sales: null, commission: null } : targets(),
+        targets(),
         today,
       );
       const context = {
@@ -157,12 +157,10 @@ export function createAssistantService(
               dealId: request.dealId,
               notes: request.notes,
               deals,
-              history: request.demo ? [] : history(),
+              history: history(),
               preferences: savedPreferences,
               knowledge,
-              targets: request.demo
-                ? { sales: null, commission: null }
-                : targets(),
+              targets: targets(),
             },
             { apiKey, model: safeModel, fetchImpl, today },
           );
@@ -178,10 +176,8 @@ export function createAssistantService(
         metrics,
         ...(warning ? { warning } : {}),
       };
-      if (!request.demo) {
-        storeMessage("user", request.message, mode);
-        answer.message = storeMessage("assistant", result.reply, mode);
-      }
+      storeMessage("user", request.message, mode);
+      answer.message = storeMessage("assistant", result.reply, mode);
       return answer;
     },
   };

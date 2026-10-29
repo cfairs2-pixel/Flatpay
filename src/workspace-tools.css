@@ -273,3 +273,120 @@
 .cloud-app .sidebar {
   overflow-y: auto;
 }
+
+@media (max-width: 720px) {
+  .tools-intro {
+    margin: 4px 0 18px;
+    padding: 18px;
+    gap: 12px;
+  }
+  .tools-intro > div,
+  .tools-intro h2,
+  .tools-intro p {
+    min-width: 0;
+  }
+  .tools-intro h2 {
+    font-size: 18px;
+    line-height: 1.3;
+  }
+  .tools-intro p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .tools-intro > .button {
+    align-self: flex-start;
+  }
+  .tool-merchant-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .tool-merchant-list > button {
+    justify-content: space-between;
+    min-height: 48px;
+    white-space: normal;
+    text-align: left;
+    line-height: 1.4;
+  }
+  .tool-record-card {
+    min-height: 120px;
+    padding: 19px;
+  }
+  .tool-record-card h3 {
+    font-size: 18px;
+  }
+  .tool-record-card p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .tool-record-action {
+    min-height: 34px;
+    padding-top: 10px;
+    font-size: 14px;
+  }
+  .notepad-card {
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+  .notepad-card .field input,
+  .offer-sheet-tool .field input {
+    min-height: 48px;
+    font-size: 16px;
+  }
+  .notepad-card .field textarea {
+    font-size: 16px;
+  }
+  .meeting-notepad .split {
+    gap: 12px;
+  }
+  .meeting-notepad .split .button {
+    width: 100%;
+    min-height: 48px;
+  }
+  .lined-notes {
+    min-height: 196px;
+  }
+  .closing-intro {
+    padding: 18px;
+    gap: 11px;
+    margin-bottom: 18px;
+  }
+  .closing-intro h3 {
+    font-size: 17px;
+  }
+  .closing-intro p,
+  .tool-caption {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .offer-sheet-tool > .button {
+    width: 100%;
+    min-height: 48px;
+  }
+  .offer-paper {
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .proposal-big-rate {
+    font-size: 32px;
+    padding: 21px;
+    margin: 18px 0;
+    overflow-wrap: anywhere;
+  }
+  .proposal-businesses > div {
+    gap: 8px;
+  }
+  .proposal-businesses span,
+  .proposal-businesses small {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .condukt-import {
+    padding: 18px;
+  }
+  .condukt-import .cloud-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}

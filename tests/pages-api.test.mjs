@@ -201,8 +201,13 @@ test("Pages assistant persists preferences, targets and history while leaving me
   assert.equal(cleared.targets.sales, 8);
 });
 
-test("Pages demo chat cannot read or update real assistant state or real merchants", async () => {
-  const h = harness();
+test("Pages assistant rejects demo and injected records without changing saved account data", async () => {
+  const h = harness({
+    [PAGES_DEALS_KEY]: JSON.stringify({
+      version: 1,
+      deals: [{ ...merchant(), id: "saved-customer" }],
+    }),
+  });
   await h.request("/api/assistant/preferences", "POST", {
     text: "Private preference",
   });
@@ -210,31 +215,38 @@ test("Pages demo chat cannot read or update real assistant state or real merchan
     sales: 10,
     commission: 1000,
   });
-  const before = h.map.get(PAGES_ASSISTANT_KEY);
-  const demo = (await h.request("/api/assistant?demo=true")).body;
-  assert.deepEqual(demo.preferences, []);
-  assert.deepEqual(demo.messages, []);
-  assert.equal(demo.targets.sales, null);
-  const answer = await h.request("/api/assistant/chat", "POST", {
-    demo: true,
-    deals: [{ ...merchant(), id: "demo-1" }],
+  const recorded = await h.request("/api/assistant/chat", "POST", {
     message: "How am I tracking?",
     month: "2026-10",
   });
-  assert.equal(answer.status, 200);
-  assert.equal(answer.body.metrics.activeCount, 1);
-  assert.equal(answer.body.metrics.targets.sales, null);
-  assert.equal(h.map.get(PAGES_ASSISTANT_KEY), before);
-  assert.equal(h.map.has(PAGES_DEALS_KEY), false);
-  assert.equal(
-    (
-      await h.request("/api/assistant/chat", "POST", {
-        deals: [merchant()],
-        message: "hello",
-      })
-    ).status,
-    400,
-  );
+  assert.equal(recorded.status, 200);
+  assert.equal(recorded.body.metrics.activeCount, 1);
+  assert.equal(recorded.body.metrics.targets.sales, 10);
+  const beforeAssistant = h.map.get(PAGES_ASSISTANT_KEY);
+  const beforeCustomers = h.map.get(PAGES_DEALS_KEY);
+  const saved = (await h.request("/api/assistant")).body;
+  const queried = (await h.request("/api/assistant?demo=true")).body;
+  assert.deepEqual(queried, saved);
+  assert.equal(queried.preferences[0].text, "Private preference");
+  assert.equal(queried.messages.length, 2);
+  assert.equal(queried.targets.sales, 10);
+  for (const input of [
+    { demo: true },
+    { demo: true, deals: [{ ...merchant(), id: "injected" }] },
+    { deals: [{ ...merchant(), id: "injected" }] },
+    { deals: [] },
+    { demo: false, deals: null },
+  ]) {
+    const rejected = await h.request("/api/assistant/chat", "POST", {
+      message: "How am I tracking?",
+      month: "2026-10",
+      ...input,
+    });
+    assert.equal(rejected.status, 400);
+    assert.match(rejected.body.error, /saved workspace/);
+    assert.equal(h.map.get(PAGES_ASSISTANT_KEY), beforeAssistant);
+    assert.equal(h.map.get(PAGES_DEALS_KEY), beforeCustomers);
+  }
 });
 
 test("Pages interception is same-origin API only and installation can be restored", async () => {

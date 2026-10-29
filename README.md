@@ -16,7 +16,7 @@ This is a local workspace, with no authentication or multi-user isolation. Do no
 
 ## Use
 
-- The initial demo contains **fictional merchants**. “Start my workspace” switches to real records. “Add merchant” starts a real record even while viewing demo data. Demo edits remain in memory for that session.
+- The app opens your saved customers or an empty workspace. There is no demo mode or fictional customer data. Use New customer on a phone for quick entry; additional contact and meeting details are optional and collapsed.
 - Merchant details include business/contact, meeting date, provider, status and next steps.
 - Statement inputs use **one month and the same period**. Total transaction value and charges include Amex. The current effective rate is charges / transaction value × 100. Business, international and Amex shares use transaction **value**, not counts, and can overlap.
 - Record each AC as a separate offer with rates, approving manager, date, link, hardware quantities and notes. Selecting an offer controls the displayed proposed rate. Preserve earlier offers when adding revisions.
@@ -78,7 +78,7 @@ The assistant works immediately in **local mode**, using deterministic sales/com
 
 For conversational AI, configure `OPENAI_API_KEY` in the **server environment**, optionally set `OPENAI_MODEL` (default `gpt-6.1-sol`), and restart the server. No key is included in this app or browser code. Configured mode is shown in the UI; provider failures fall back to local calculations with a visible message. Live AI has not been verified without a configured credential.
 
-AI requests send the selected merchant's relevant sales data, notes, offer details, workspace summaries and remembered preferences to the OpenAI API. Chat history, explicit preferences and recurring monthly targets are stored locally in SQLite. The assistant improves its context through records, chat history and preferences you choose to remember; it does **not** retrain a model. Review and remove preferences or clear chat in assistant settings. Demo chat and preferences are isolated from saved customer records and demo chat is not persisted. The JSON merchant export contains merchant notes and offers; assistant memory/settings are included only in a full consistent database backup.
+AI requests send the selected merchant's relevant sales data, notes, offer details, workspace summaries and remembered preferences to the OpenAI API. Chat history, explicit preferences and recurring monthly targets are stored locally in SQLite. The assistant improves its context through records, chat history and preferences you choose to remember; it does **not** retrain a model. Review and remove preferences or clear chat in assistant settings. The assistant uses your saved workspace; client-supplied sample/demo records are rejected. The JSON merchant export contains merchant notes and offers; assistant memory/settings are included only in a full consistent database backup.
 
 ## Hosted myflatpay app
 
@@ -105,3 +105,15 @@ The owner Feature studio edits HTML, CSS and JavaScript for custom tools, with d
 The supplied training refers to Condukt at https://condukt.co/. With the user's website-only access, the app supports a reviewed manual handoff: open Condukt, paste labelled details or a myflatpay interchange JSON file, select the customer/fields, then save. It records per-person document requirements and distinguishes required/rejected, submitted, approved and unknown. Last-checked timestamps identify snapshots; the app does not log in to Condukt or make live status checks. Submitted documents are not marked approved and the sale checklist is never completed automatically.
 
 Approved API documentation at https://portal.condukt.co/docs and organisation-authorised API credentials would be needed for future live sync. Website passwords, identity scans and bank evidence are not collected by this handoff.
+
+## Phone capture and quick entry
+
+The phone interface has a persistent New customer action, customer cards, larger controls, bottom navigation and a sticky Save customer footer. The first customer screen contains business name, contact and current provider. Contact details and next steps expand when needed; AC, sale and commission details remain available in the editor tabs.
+
+Scan documents supports camera capture and photo upload for passports, driving licences and bank statements. Tesseract.js runs on the device using worker, WebAssembly and English-language assets served from the app's own origin. No API key or AI service is required. The first scan downloads the reader/language assets; the language model is cached by the browser for later scans. PDF files should be photographed or converted to an image for this camera flow.
+
+Passport/UK-licence names, licence home addresses and clearly labelled bank account-holder/business details become editable suggestions. You review and select fields before applying them. Existing values are not replaced by default. Personal correspondence addresses are kept separate from business/installation addresses. OCR can misread photos; use the recognised-text correction or manual fields where details are uncertain.
+
+Document photos and recognised text stay in the scanner's transient memory, then clear when you leave/apply. Only the selected name/address fields become part of the customer draft. Passport/licence numbers, dates of birth, bank account numbers, sort codes and transaction data are not stored by this flow. Scanning does not verify identity, signing authority or document approval. Original evidence still belongs in the authorised onboarding system.
+
+`node scripts/prepare-ocr.mjs` prepares generated OCR assets from locked npm packages under public/ocr. Normal builds and the dev command run this automatically. Include the generated OCR directory when deploying the Pages artifact; it is copied into work/pages-site/ocr by build:pages.

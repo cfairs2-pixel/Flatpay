@@ -23,20 +23,36 @@ test("merchant statement, offers, won prompt, commission, export and persistence
   const browserErrors = [];
   page.on("pageerror", (error) => browserErrors.push(error.message));
   await page.goto("/");
-  await expect(page.getByText("Demo workspace", { exact: true })).toBeVisible();
-  await expect(page.locator("tbody tr")).toHaveCount(8);
+  await expect(page).toHaveTitle(/myflatpay/);
+  await expect(page.getByText("Demo workspace", { exact: true })).toHaveCount(
+    0,
+  );
+  await expect(page.locator("tbody tr")).toHaveCount(0);
+  await expect(
+    page
+      .locator(".stat-card")
+      .filter({ hasText: "Sales won" })
+      .locator("strong"),
+  ).toHaveText("0");
+  expect(await (await page.request.get("/api/deals")).json()).toEqual([]);
   await page.screenshot({
     path: test.info().outputPath("desktop-overview.png"),
     fullPage: true,
   });
 
-  await page.getByRole("button", { name: "Add merchant", exact: true }).click();
+  await page
+    .locator(".page-heading")
+    .getByRole("button", { name: "Add customer", exact: true })
+    .click();
   const editor = page.getByRole("dialog");
   await expect(editor).toBeVisible();
   await editor.getByLabel("Business name", { exact: false }).fill(merchantName);
   await editor
     .getByLabel("Contact person", { exact: true })
     .fill("Morgan Example");
+  await editor
+    .getByText("Contact details & next steps", { exact: true })
+    .click();
   await editor
     .getByLabel("Contact email", { exact: true })
     .fill("morgan@example.com");
@@ -84,17 +100,17 @@ test("merchant statement, offers, won prompt, commission, export and persistence
   await offer.getByLabel("POS Pro", { exact: true }).fill("1");
   await offer.getByLabel("mPOS", { exact: true }).fill("1");
   await editor
-    .getByRole("button", { name: "Save merchant", exact: true })
+    .getByRole("button", { name: "Save customer", exact: true })
     .click();
   await expect(editor).not.toBeVisible();
-  await expect(page.locator(".workspace-banner")).toContainText(
-    "Your workspace",
+  await expect(page.getByText("Demo workspace", { exact: true })).toHaveCount(
+    0,
   );
   await expect(page.locator("tbody tr")).toHaveCount(1);
   await expect(page.locator("tbody tr")).toContainText(merchantName);
 
   await page.reload();
-  await page.getByLabel("Search merchants").fill("Browser Test");
+  await page.getByLabel("Search customers").fill("Browser Test");
   await expect(page.locator("tbody tr")).toHaveCount(1);
   await page.getByRole("button", { name: `Open ${merchantName}` }).click();
   await editor.getByRole("button", { name: /^AC offers/ }).click();
@@ -108,10 +124,11 @@ test("merchant statement, offers, won prompt, commission, export and persistence
       .first()
       .getByLabel("Terminal only", { exact: true }),
   ).toHaveValue("2");
-  await editor.getByRole("button", { name: "Merchant", exact: true }).click();
+  await editor.getByRole("button", { name: "Customer", exact: true }).click();
   await editor
-    .getByRole("combobox", { name: "Sales status" })
-    .selectOption("Won");
+    .getByRole("group", { name: "Sales status" })
+    .getByRole("button", { name: "Won", exact: true })
+    .click();
   await expect(
     editor.getByRole("heading", { name: "A win worth getting right." }),
   ).toBeVisible();
@@ -202,7 +219,7 @@ test("merchant statement, offers, won prompt, commission, export and persistence
       .locator("strong"),
   ).toHaveText("£208.00");
   await editor
-    .getByRole("button", { name: "Save merchant", exact: true })
+    .getByRole("button", { name: "Save customer", exact: true })
     .click();
   await expect(editor).not.toBeVisible();
   await expect(
@@ -222,7 +239,7 @@ test("merchant statement, offers, won prompt, commission, export and persistence
   await page.getByRole("button", { name: "Export", exact: true }).click();
   const download = await downloadPromise;
   const backup = JSON.parse(await readFile(await download.path(), "utf8"));
-  expect(backup.demo).toBe(false);
+  expect(backup).not.toHaveProperty("demo");
   expect(backup.deals).toHaveLength(1);
   expect(backup.deals[0]).toMatchObject({
     businessName: merchantName,
@@ -245,7 +262,7 @@ test("merchant statement, offers, won prompt, commission, export and persistence
   });
 
   await page
-    .locator("nav")
+    .locator(".sidebar nav")
     .getByRole("button", { name: "Commission", exact: true })
     .click();
   await expect(
@@ -300,11 +317,11 @@ test("merchant statement, offers, won prompt, commission, export and persistence
       .filter({ hasText: "Eligible by recorded milestones" })
       .locator("strong"),
   ).toHaveText("£208.00");
-  await editor.getByRole("button", { name: "Close merchant" }).click();
+  await editor.getByRole("button", { name: "Close customer" }).click();
   expect(browserErrors).toEqual([]);
 });
 
-test("mobile overview and merchant editor fit a narrow screen", async ({
+test("mobile customer workflow uses phone navigation and fits a narrow screen", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -321,16 +338,27 @@ test("mobile overview and merchant editor fit a narrow screen", async ({
     path: test.info().outputPath("mobile-overview.png"),
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Toggle menu" }).click();
-  await page
-    .locator("nav")
-    .getByRole("button", { name: /^Sales pipeline/ })
+  const phoneNav = page.getByRole("navigation", { name: "Phone navigation" });
+  await expect(phoneNav).toBeVisible();
+  await phoneNav
+    .getByRole("button", { name: "Customers", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "From first hello to signed deal." }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Add merchant", exact: true }).click();
+  await page.getByRole("button", { name: "New customer", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(
+    page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Scan a document", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("dialog").locator(".customer-more-details"),
+  ).not.toHaveAttribute("open", "");
+  await expect(
+    page.getByRole("dialog").getByLabel("Contact email", { exact: true }),
+  ).not.toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -340,11 +368,11 @@ test("mobile overview and merchant editor fit a narrow screen", async ({
     path: test.info().outputPath("mobile-editor.png"),
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Close merchant" }).click();
+  await page.getByRole("button", { name: "Close customer" }).click();
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await page.getByRole("button", { name: "Toggle menu" }).click();
   await page
-    .locator("nav")
+    .locator(".sidebar nav")
     .getByRole("button", { name: "Commission", exact: true })
     .click();
   await expect(page.getByTestId("portfolio-gross")).toHaveText("£8,117");
@@ -365,7 +393,7 @@ test("official monthly scenarios, deductions and guarantee stay separate from me
   await page.goto("/");
   const before = await (await page.request.get("/api/deals")).json();
   await page
-    .locator("nav")
+    .locator(".sidebar nav")
     .getByRole("button", { name: "Commission", exact: true })
     .click();
   const calculator = page.locator(".portfolio-calculator");
@@ -430,7 +458,10 @@ test("myflatpay saves meeting notes, bundle terms, closing ACs and customer-safe
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
   await expect(page).toHaveTitle(/myflatpay/);
-  await page.getByRole("button", { name: "Add merchant", exact: true }).click();
+  await page
+    .locator(".page-heading")
+    .getByRole("button", { name: "Add customer", exact: true })
+    .click();
   const editor = page.getByRole("dialog");
   await editor.getByLabel("Business name", { exact: false }).fill(name);
   await editor
@@ -571,12 +602,12 @@ test("myflatpay saves meeting notes, bundle terms, closing ACs and customer-safe
   });
   await popup.close();
   await editor
-    .getByRole("button", { name: "Save merchant", exact: true })
+    .getByRole("button", { name: "Save customer", exact: true })
     .click();
   await expect(editor).not.toBeVisible();
   await page.reload();
   await page
-    .locator("nav")
+    .locator(".sidebar nav")
     .getByRole("button", { name: "Meeting notes", exact: true })
     .click();
   await expect(
@@ -586,7 +617,7 @@ test("myflatpay saves meeting notes, bundle terms, closing ACs and customer-safe
   await expect(
     editor.getByRole("textbox", { name: "Meeting notes", exact: true }),
   ).toHaveValue(/INTERNAL ONLY/);
-  await editor.getByRole("button", { name: "Close merchant" }).click();
+  await editor.getByRole("button", { name: "Close customer" }).click();
   const saved = (await (await page.request.get("/api/deals")).json()).find(
     (d) => d.businessName === name,
   );
@@ -606,7 +637,7 @@ test("assistant tracks records, saves preferences and applies reviewed drafts on
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
   await page
-    .locator("nav")
+    .locator(".sidebar nav")
     .getByRole("button", { name: "Sales assistant", exact: true })
     .click();
   await expect(
@@ -670,14 +701,14 @@ test("assistant tracks records, saves preferences and applies reviewed drafts on
       .getByRole("textbox", { name: "Meeting notes", exact: true })
       .first(),
   ).toHaveValue(/Owner wants a statement review/);
-  await page.getByRole("button", { name: "Close merchant" }).click();
+  await page.getByRole("button", { name: "Close customer" }).click();
   await page.screenshot({
     path: test.info().outputPath("assistant-desktop.png"),
     fullPage: true,
   });
   await page.reload();
   await page
-    .locator("nav")
+    .locator(".sidebar nav")
     .getByRole("button", { name: "Sales assistant", exact: true })
     .click();
   await expect(page.locator(".assistant-message.from-assistant")).toHaveCount(

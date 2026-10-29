@@ -91,13 +91,23 @@ test("assistant input validation rejects malformed requests and forged real merc
     { message: " " },
     { message: "x", month: "2026-13" },
     { message: "x", deals: [] },
+    { message: "x", deals: undefined },
+    { message: "x", deals: null },
+    { message: "x", deals: [merchant()] },
     { message: "x", notes: [] },
-    { message: "x", demo: true, deals: [{}] },
+    { message: "x", demo: true },
+    { message: "x", demo: true, deals: [merchant()] },
   ])
     assert.throws(
       () => validateChatInput(input),
       (error) => error.status === 400,
     );
+  const legacyRequest = validateChatInput({
+    message: "Saved records only",
+    demo: false,
+  });
+  assert.equal(Object.hasOwn(legacyRequest, "demo"), false);
+  assert.equal(Object.hasOwn(legacyRequest, "deals"), false);
   assert.throws(() => validateTargets({ sales: 1.5, commission: 50 }));
   assert.throws(() => validateTargets({ sales: 5, commission: -50 }));
   assert.deepEqual(validateTargets({ sales: 5, commission: 500 }), {
@@ -132,7 +142,7 @@ test("local assistant drafts notes and follow-up actions without modifying merch
   );
 });
 
-test("preferences, targets and history persist in SQLite and remain absent in demo", async (t) => {
+test("preferences, targets and history persist while removed demo and injected merchant requests cannot change state", async (t) => {
   const { service, db } = fixture(t);
   const preference = service.addPreference({ text: "Use formal greetings" });
   service.setTargets({ sales: 8, commission: 2500 });
@@ -145,19 +155,31 @@ test("preferences, targets and history persist in SQLite and remain absent in de
   assert.equal(restored.status().preferences[0].text, "Use formal greetings");
   assert.equal(restored.status().targets.sales, 8);
   assert.equal(restored.status().messages.length, 2);
-  assert.deepEqual(restored.status({ demo: true }).preferences, []);
-  assert.deepEqual(restored.status({ demo: true }).messages, []);
+  const before = restored.status();
+  assert.deepEqual(restored.status({ demo: true }), before);
+  for (const request of [
+    { message: "Summarise notes", demo: true },
+    {
+      message: "Summarise notes",
+      deals: [merchant({ commissionAmount: 99999 })],
+    },
+    { message: "Summarise notes", demo: true, deals: [merchant()] },
+  ]) {
+    await assert.rejects(
+      () => restored.chat(request),
+      (error) => error.status === 400,
+    );
+    assert.deepEqual(restored.status(), before);
+  }
   const result = await restored.chat({
-    message: "Summarise notes",
-    notes: "Demo only",
+    message: "How am I tracking?",
     month: "2026-10",
-    demo: true,
-    deals: [merchant()],
+    demo: false,
   });
-  assert.equal(result.metrics.targets.sales, null);
-  assert.equal(result.message, undefined);
-  assert.equal(restored.status().messages.length, 2);
-  assert.match(result.actions[1].text, /^Hi /);
+  assert.equal(result.metrics.targets.sales, 8);
+  assert.equal(result.metrics.confirmedCommission, 500);
+  assert.ok(result.message.id);
+  assert.equal(restored.status().messages.length, 4);
   assert.deepEqual(restored.deletePreference(preference.id), { ok: true });
   assert.equal(restored.status().preferences.length, 0);
   restored.clearHistory();
@@ -254,7 +276,7 @@ test("upstream errors and unsupported AI write actions fall back transparently",
   }
 });
 
-test("assistant knowledge comes freshly from its scoped backend getter, never from chat payloads or demo", async (t) => {
+test("assistant knowledge comes freshly from its scoped backend getter and rejected request switches never invoke it", async (t) => {
   let currentVersion = 1,
     getterCalls = 0;
   const contexts = [];
@@ -310,12 +332,18 @@ test("assistant knowledge comes freshly from its scoped backend getter, never fr
   });
   currentVersion = 2;
   await service.chat({ message: "What is the current version?" });
-  await service.chat({
-    message: "Show demo guidance",
-    demo: true,
-    deals: [merchant()],
-    knowledge: forged,
-  });
+  const before = service.status();
+  await assert.rejects(
+    () =>
+      service.chat({
+        message: "Switch records",
+        demo: true,
+        deals: [merchant()],
+        knowledge: forged,
+      }),
+    (error) => error.status === 400,
+  );
+  assert.deepEqual(service.status(), before);
   assert.equal(getterCalls, 2);
   assert.equal(contexts[0].knowledge[0].version, 1);
   assert.equal(contexts[1].knowledge[0].version, 2);
@@ -323,5 +351,5 @@ test("assistant knowledge comes freshly from its scoped backend getter, never fr
     contexts[0].knowledge.some((document) => document.id === "forged"),
     false,
   );
-  assert.deepEqual(contexts[2].knowledge, []);
+  assert.equal(contexts.length, 2);
 });

@@ -346,7 +346,11 @@ export function validateDeal(deal) {
         "signatoryName",
       ])
         validateText(errors, info[key], `Sale ${key}`);
-      for (const key of ["registeredAddress", "installationAddress"])
+      for (const key of [
+        "registeredAddress",
+        "installationAddress",
+        "signatoryAddress",
+      ])
         validateText(errors, info[key], `Sale ${key}`, 2000);
       validateLink(errors, info.crmLink, "CRM link");
     }

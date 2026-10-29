@@ -89,7 +89,6 @@ function Progress({ value, target, label, format = (v) => v }) {
 
 export default function SalesAssistant({
   deals = [],
-  demo = false,
   month,
   onApplyNote,
   onOpenDeal,
@@ -130,12 +129,12 @@ export default function SalesAssistant({
     setDealId("");
     setBusy(false);
     setMode("loading");
-    api(demo ? "?demo=true" : "")
+    api("")
       .then((data) => {
         if (generation !== requestGeneration.current) return;
         setMode(data.mode);
         setModel(data.model);
-        if (!demo) {
+        {
           setMessages(data.messages || []);
           setPreferences(data.preferences || []);
           const savedTargets = data.targets || defaultTargets;
@@ -154,7 +153,7 @@ export default function SalesAssistant({
     return () => {
       requestGeneration.current += 1;
     };
-  }, [demo]);
+  }, []);
 
   useEffect(() => {
     if (dealId && !deals.some((deal) => deal.id === dealId)) setDealId("");
@@ -184,7 +183,6 @@ export default function SalesAssistant({
         month,
         ...(requestDealId ? { dealId: requestDealId } : {}),
         ...(notes.trim() ? { notes: notes.trim() } : {}),
-        ...(demo ? { demo: true, deals } : {}),
       });
       if (generation !== requestGeneration.current) return;
       setMode(data.mode);
@@ -230,9 +228,7 @@ export default function SalesAssistant({
             : entry,
         ),
       );
-      setNotice(
-        demo ? "Added to this demo session." : "Added to the merchant record.",
-      );
+      setNotice("Added to the customer record.");
     } catch (failure) {
       setError(failure.message || "The note could not be saved.");
     } finally {
@@ -262,13 +258,9 @@ export default function SalesAssistant({
     setSaving(true);
     setError("");
     try {
-      if (!demo) await api("/targets", "PUT", nextTargets);
+      await api("/targets", "PUT", nextTargets);
       setTargets(nextTargets);
-      setNotice(
-        demo
-          ? "Demo targets updated for this session."
-          : "Monthly targets saved.",
-      );
+      setNotice("Monthly targets saved.");
     } catch (failure) {
       setError(failure.message);
     } finally {
@@ -278,7 +270,7 @@ export default function SalesAssistant({
 
   async function remember(event) {
     event.preventDefault();
-    if (!preference.trim() || demo) return;
+    if (!preference.trim()) return;
     setSaving(true);
     setError("");
     try {
@@ -314,7 +306,7 @@ export default function SalesAssistant({
     setSaving(true);
     setError("");
     try {
-      if (!demo) await api("/history", "DELETE");
+      await api("/history", "DELETE");
       setMessages([]);
       setNotice(
         "Conversation cleared. Saved merchant notes and preferences are kept.",
@@ -370,12 +362,6 @@ export default function SalesAssistant({
                   : ""}
             </span>
           </div>
-          {demo && (
-            <p className="assistant-demo-note">
-              Demo conversation · fictional records · cleared when you leave the
-              page.
-            </p>
-          )}
           <div
             className="assistant-messages"
             role="log"
@@ -670,11 +656,7 @@ export default function SalesAssistant({
                 >
                   {saving ? "Saving…" : "Save targets"}
                 </button>
-                <small>
-                  {demo
-                    ? "Demo targets last for this session."
-                    : "Used as your recurring monthly goals."}
-                </small>
+                <small>Used as your recurring monthly goals.</small>
               </form>
             </details>
           </section>
@@ -711,56 +693,49 @@ export default function SalesAssistant({
                 preferences to make future help more useful; this does not train
                 the underlying model.
               </p>
-              {demo ? (
-                <div className="assistant-memory-empty">
-                  Preferences are available in your workspace. Demo chats never
-                  update your saved memory.
-                </div>
-              ) : (
-                <>
-                  <form onSubmit={remember}>
-                    <label className="field">
-                      <span>Remember a preference</span>
-                      <textarea
-                        value={preference}
-                        onChange={(event) => setPreference(event.target.value)}
-                        maxLength={500}
-                        rows={3}
-                        placeholder="e.g. Keep customer follow-ups short and friendly."
-                      />
-                    </label>
-                    <button
-                      type="submit"
-                      className="button secondary"
-                      disabled={saving || !preference.trim()}
-                    >
-                      Remember preference
-                    </button>
-                  </form>
-                  {preferences.length ? (
-                    <ul className="assistant-preferences">
-                      {preferences.map((item) => (
-                        <li key={item.id}>
-                          <span>{item.text}</span>
-                          <button
-                            type="button"
-                            className="icon-button"
-                            aria-label={`Forget preference: ${item.text}`}
-                            disabled={saving}
-                            onClick={() => forget(item.id)}
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="assistant-memory-empty">
-                      No saved preferences yet.
-                    </div>
-                  )}
-                </>
-              )}
+              <>
+                <form onSubmit={remember}>
+                  <label className="field">
+                    <span>Remember a preference</span>
+                    <textarea
+                      value={preference}
+                      onChange={(event) => setPreference(event.target.value)}
+                      maxLength={500}
+                      rows={3}
+                      placeholder="e.g. Keep customer follow-ups short and friendly."
+                    />
+                  </label>
+                  <button
+                    type="submit"
+                    className="button secondary"
+                    disabled={saving || !preference.trim()}
+                  >
+                    Remember preference
+                  </button>
+                </form>
+                {preferences.length ? (
+                  <ul className="assistant-preferences">
+                    {preferences.map((item) => (
+                      <li key={item.id}>
+                        <span>{item.text}</span>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          aria-label={`Forget preference: ${item.text}`}
+                          disabled={saving}
+                          onClick={() => forget(item.id)}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="assistant-memory-empty">
+                    No saved preferences yet.
+                  </div>
+                )}
+              </>
               <button
                 type="button"
                 className="assistant-clear"

@@ -28,6 +28,7 @@ import {
   NotebookPen,
   FileText,
   MessageSquare,
+  Camera,
 } from "lucide-react";
 import {
   calculateMerchant,
@@ -56,7 +57,7 @@ import ConduktWorkspace from "./ConduktWorkspace.jsx";
 import "./workspace-tools.css";
 import "./sales-tools.css";
 import PortfolioCalculator from "./PortfolioCalculator.jsx";
-import { demoDeals } from "./demo.mjs";
+import DocumentCapture from "./DocumentCapture.jsx";
 import "./styles.css";
 import { installPagesApi } from "./pages-api.mjs";
 const pagesMode = import.meta.env.MODE === "pages";
@@ -169,6 +170,16 @@ function Field({
             )
           }
           required={required}
+          inputMode={
+            type === "number"
+              ? "decimal"
+              : type === "tel"
+                ? "tel"
+                : type === "email"
+                  ? "email"
+                  : undefined
+          }
+          enterKeyHint="next"
           {...(type === "number" ? { min: 0, step: "any" } : {})}
           {...Object.fromEntries(
             Object.entries(props).filter(([key]) => key !== "className"),
@@ -183,13 +194,12 @@ function Field({
 function App({ user, onSignOut } = {}) {
   const [records, setRecords] = useState([]),
     [loading, setLoading] = useState(true),
-    [demo, setDemo] = useState(false),
     [page, setPage] = useState("Overview"),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("All statuses"),
     [month, setMonth] = useState(isoToday().slice(0, 7)),
     [editor, setEditor] = useState(null),
-    [editorTab, setEditorTab] = useState("Merchant"),
+    [editorTab, setEditorTab] = useState("Customer"),
     [toast, setToast] = useState(""),
     [error, setError] = useState(""),
     [mobile, setMobile] = useState(false);
@@ -201,7 +211,6 @@ function App({ user, onSignOut } = {}) {
       })
       .then((d) => {
         setRecords(d);
-        setDemo(d.length === 0);
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -212,8 +221,7 @@ function App({ user, onSignOut } = {}) {
       return () => clearTimeout(t);
     }
   }, [toast]);
-  const [sample, setSample] = useState(demoDeals);
-  const deals = demo ? sample : records,
+  const deals = records,
     summary = monthlySummary(deals, month),
     active = deals.filter((d) => !["Won", "Lost"].includes(d.status)),
     display = deals.filter(
@@ -238,20 +246,14 @@ function App({ user, onSignOut } = {}) {
     setFilter("All statuses");
   };
   const notify = (t) => setToast(t);
-  const openEditor = (deal, tab = "Merchant") => {
+  const openEditor = (deal, tab = "Customer") => {
     setEditorTab(tab);
     setEditor(structuredClone(deal));
   };
   const add = () => {
-    setDemo(false);
     openEditor(blankDeal());
   };
   async function save(deal) {
-    if (demo && deal.id?.startsWith("demo-")) {
-      setSample((s) => s.map((d) => (d.id === deal.id ? deal : d)));
-      notify("Demo merchant updated for this session.");
-      return;
-    }
     const res = await fetch(deal.id ? `/api/deals/${deal.id}` : "/api/deals", {
       method: deal.id ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -260,28 +262,23 @@ function App({ user, onSignOut } = {}) {
     const data = await res.json();
     if (!res.ok)
       throw Error(
-        data.errors?.join(" ") || data.error || "Unable to save merchant.",
+        data.errors?.join(" ") || data.error || "Unable to save customer.",
       );
     setRecords((s) =>
       deal.id ? s.map((d) => (d.id === data.id ? data : d)) : [data, ...s],
     );
-    notify("Merchant saved.");
+    notify("Customer saved.");
   }
   async function remove(deal) {
-    if (demo) {
-      setSample((s) => s.filter((d) => d.id !== deal.id));
-      return;
-    }
     const res = await fetch(`/api/deals/${deal.id}`, { method: "DELETE" });
-    if (!res.ok) throw Error("Unable to delete merchant.");
+    if (!res.ok) throw Error("Unable to delete customer.");
     setRecords((s) => s.filter((d) => d.id !== deal.id));
-    notify("Merchant deleted.");
+    notify("Customer deleted.");
   }
   function exportData() {
     const data = {
       version: 1,
       exportedAt: new Date().toISOString(),
-      demo,
       deals,
     };
     const url = URL.createObjectURL(
@@ -289,7 +286,7 @@ function App({ user, onSignOut } = {}) {
     );
     const a = document.createElement("a");
     a.href = url;
-    a.download = `flatpay-${demo ? "demo-" : ""}${isoToday()}.json`;
+    a.download = `myflatpay-${isoToday()}.json`;
     a.click();
     URL.revokeObjectURL(url);
     notify("Workspace exported. Keep the backup secure.");
@@ -364,7 +361,7 @@ function App({ user, onSignOut } = {}) {
             <strong>A little more momentum.</strong>
             <p>Every conversation is a new opportunity.</p>
             <button onClick={add}>
-              Add a merchant <Plus size={15} />
+              Add a customer <Plus size={15} />
             </button>
           </div>
           <div className="profile">
@@ -403,16 +400,27 @@ function App({ user, onSignOut } = {}) {
             <span className="saved-dot" />
             {loading
               ? "Connecting…"
-              : demo
-                ? "Demo session · not saved"
-                : cloudMode
-                  ? "Saved to your account"
-                  : pagesMode
-                    ? "Saved in this browser"
-                    : "Saved on this device’s server"}
+              : cloudMode
+                ? "Saved to your account"
+                : pagesMode
+                  ? "Saved in this browser"
+                  : "Saved on this device’s server"}
             <span className="avatar">ME</span>
           </div>
         </header>
+        <div className="mobile-quickbar">
+          <span>
+            {page === "Overview"
+              ? "Your day"
+              : page === "Sales pipeline"
+                ? "Your customers"
+                : page}
+          </span>
+          <button className="button primary" onClick={add}>
+            <Plus size={18} />
+            New customer
+          </button>
+        </div>
         <main>
           <div className="page-heading">
             <div className="eyebrow">YOUR SALES, IN ONE PLACE</div>
@@ -446,7 +454,7 @@ function App({ user, onSignOut } = {}) {
                   {page === "Overview"
                     ? "Keep your pipeline moving and your next win in sight."
                     : page === "Sales pipeline"
-                      ? "Every merchant, every offer, every opportunity."
+                      ? "Every customer, every offer, every next step."
                       : page === "Commission"
                         ? "Track confirmed earnings and the milestones still to come."
                         : page === "Meeting notes"
@@ -459,34 +467,21 @@ function App({ user, onSignOut } = {}) {
                 </p>
               </div>
               <button className="button primary" onClick={add}>
-                <Plus size={17} /> Add merchant
+                <Plus size={17} /> Add customer
               </button>
             </div>
           </div>
           {error && <div className="notice error">{error}</div>}
-          <div className={`workspace-banner ${demo ? "is-demo" : ""}`}>
+          <div className="workspace-banner">
             <span>
               <Info size={15} />
-              {demo ? (
-                <>
-                  <strong>Demo workspace</strong> · Fictional merchants to show
-                  you around.
-                </>
-              ) : (
-                <>
-                  <strong>Your workspace</strong> ·{" "}
-                  {pagesMode
-                    ? "Customer records are saved in this browser. Export regular backups."
-                    : cloudMode
-                      ? "Your customer records sync across devices when you sign in."
-                      : "Customer records are saved locally to this server."}
-                </>
-              )}
+              <strong>Your customers</strong> ·{" "}
+              {pagesMode
+                ? "Saved in this browser. Export a backup to keep a copy."
+                : cloudMode
+                  ? "Saved to your account and available on your other devices."
+                  : "Saved to this workspace."}
             </span>
-            <button onClick={() => setDemo(!demo)}>
-              {demo ? "Start my workspace" : "Explore demo"}
-              <ArrowRight size={14} />
-            </button>
           </div>
           {(page === "Overview" || page === "Commission") && (
             <>
@@ -626,7 +621,7 @@ function App({ user, onSignOut } = {}) {
               <div className="panel-heading">
                 <div className="title-with-count">
                   <h2>
-                    {page === "Overview" ? "Your merchants" : "Sales pipeline"}
+                    {page === "Overview" ? "Your customers" : "Sales pipeline"}
                   </h2>
                   <span>{deals.length}</span>
                 </div>
@@ -638,8 +633,8 @@ function App({ user, onSignOut } = {}) {
                 <label className="search-box">
                   <Search size={17} />
                   <input
-                    aria-label="Search merchants"
-                    placeholder="Search merchants or contacts…"
+                    aria-label="Search customers"
+                    placeholder="Search customers or contacts…"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                   />
@@ -669,7 +664,7 @@ function App({ user, onSignOut } = {}) {
                 <table>
                   <thead>
                     <tr>
-                      <th>Merchant</th>
+                      <th>Customer</th>
                       <th>Current provider</th>
                       <th>Status</th>
                       <th>Monthly volume</th>
@@ -712,12 +707,12 @@ function App({ user, onSignOut } = {}) {
                               </div>
                             </div>
                           </td>
-                          <td className="provider-cell">
+                          <td className="provider-cell" data-label="Provider">
                             {d.provider?.trim() || (
                               <span className="muted">Not recorded</span>
                             )}
                           </td>
-                          <td>
+                          <td data-label="Status">
                             <Status value={d.status} />
                             {d.status === "Won" && (
                               <small className="sale-substatus">
@@ -727,22 +722,28 @@ function App({ user, onSignOut } = {}) {
                               </small>
                             )}
                           </td>
-                          <td className="numeric">
+                          <td
+                            className="numeric"
+                            data-label="Monthly card sales"
+                          >
                             {money(d.monthlyVolume, true)}
                           </td>
-                          <td className="numeric muted">
+                          <td
+                            className="numeric muted"
+                            data-label="Current rate"
+                          >
                             {d.monthlyVolume
                               ? pct(calculateMerchant(d).currentRate)
                               : "—"}
                           </td>
-                          <td>
+                          <td data-label="Offered rate">
                             <span className="proposed">
                               {offer?.rate !== undefined && offer.rate !== ""
                                 ? pct(offer.rate)
                                 : "—"}
                             </span>
                           </td>
-                          <td className="muted">
+                          <td className="muted" data-label="Meeting">
                             {d.meetingDate
                               ? new Date(
                                   d.meetingDate + "T12:00:00",
@@ -775,18 +776,18 @@ function App({ user, onSignOut } = {}) {
                   <BriefcaseBusiness size={28} />
                   <h3>
                     {query || filter !== "All statuses"
-                      ? "No merchants match your search"
+                      ? "No customers match your search"
                       : "Your next chapter starts here"}
                   </h3>
                   <p>
                     {query || filter !== "All statuses"
                       ? "Try a different name or status."
-                      : "Add your first merchant to start tracking your sales."}
+                      : "Add a customer in seconds. You can fill in the rest later."}
                   </p>
                   {!query && filter === "All statuses" && (
                     <button className="button primary" onClick={add}>
                       <Plus size={15} />
-                      Add merchant
+                      Add customer
                     </button>
                   )}
                 </div>
@@ -794,20 +795,14 @@ function App({ user, onSignOut } = {}) {
               <div className="table-footer">
                 <span>
                   {display.length}{" "}
-                  {display.length === 1 ? "merchant" : "merchants"}
-                  {demo ? " · Demo data" : ""}
+                  {display.length === 1 ? "customer" : "customers"}
                 </span>
                 <span>Every opportunity, a step forward.</span>
               </div>
             </section>
           )}
           {page === "Commission" && (
-            <CommissionPage
-              deals={deals}
-              month={month}
-              onEdit={openEditor}
-              demo={demo}
-            />
+            <CommissionPage deals={deals} month={month} onEdit={openEditor} />
           )}
           {page === "Meeting notes" && (
             <SalesToolsHub deals={deals} onOpen={openEditor} kind="notes" />
@@ -817,15 +812,14 @@ function App({ user, onSignOut } = {}) {
           )}
           {page === "Sales assistant" && (
             <SalesAssistant
-              key={demo ? "demo" : "real"}
               deals={deals}
-              demo={demo}
+              demo={false}
               month={month}
               onOpenDeal={(deal) => openEditor(deal, "Meeting notes")}
               onApplyNote={async ({ dealId, type, text }) => {
                 const deal = deals.find((d) => d.id === dealId);
                 if (!deal)
-                  throw Error("Choose a merchant before applying this draft.");
+                  throw Error("Choose a customer before adding this draft.");
                 const updated =
                   type === "followUp"
                     ? {
@@ -883,7 +877,7 @@ function App({ user, onSignOut } = {}) {
                     const backup = JSON.parse(await file.text());
                     if (backup.demo)
                       throw Error(
-                        "Demo backups cannot be imported as customer records.",
+                        "Sample-data backups cannot be imported as customer records.",
                       );
                     const res = await fetch("/api/deals/import", {
                       method: "POST",
@@ -893,7 +887,6 @@ function App({ user, onSignOut } = {}) {
                     const result = await res.json();
                     if (!res.ok) throw Error(result.error);
                     setRecords(result.deals);
-                    setDemo(false);
                     notify(
                       `${result.imported} customers imported; ${result.skipped} already present.`,
                     );
@@ -913,11 +906,27 @@ function App({ user, onSignOut } = {}) {
           </footer>
         </main>
       </div>
+      <nav className="mobile-bottom-nav" aria-label="Phone navigation">
+        {[
+          [LayoutDashboard, "Home", "Overview"],
+          [BriefcaseBusiness, "Customers", "Sales pipeline"],
+          [NotebookPen, "Notes", "Meeting notes"],
+          [MessageSquare, "Assistant", "Sales assistant"],
+        ].map(([Icon, label, destination]) => (
+          <button
+            className={page === destination ? "active" : ""}
+            key={destination}
+            onClick={() => navigate(destination)}
+          >
+            <Icon size={21} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
       {editor && (
         <DealEditor
           initial={editor}
           initialTab={editorTab}
-          demo={demo}
           onClose={() => setEditor(null)}
           onSave={save}
           onDelete={remove}
@@ -1023,7 +1032,7 @@ function Playbook() {
     </div>
   );
 }
-function CommissionPage({ deals, month, onEdit, demo }) {
+function CommissionPage({ deals, month, onEdit }) {
   const won = deals.filter(
     (d) => d.status === "Won" && d.saleDate?.startsWith(month),
   );
@@ -1052,9 +1061,7 @@ function CommissionPage({ deals, month, onEdit, demo }) {
       <section className="panel">
         <div className="panel-heading">
           <h2>This month’s sales</h2>
-          <span className="subtle">
-            {demo ? "Demo figures" : "Confirmed earnings only"}
-          </span>
+          <span className="subtle">Confirmed earnings only</span>
         </div>
         <div className="table-scroll">
           <table>
@@ -1155,8 +1162,7 @@ function CommissionPage({ deals, month, onEdit, demo }) {
 
 function DealEditor({
   initial,
-  initialTab = "Merchant",
-  demo,
+  initialTab = "Customer",
   onClose,
   onSave,
   onDelete,
@@ -1184,7 +1190,10 @@ function DealEditor({
     e.preventDefault();
     const issues = validateDeal(d);
     setErrors(issues);
-    if (issues.length) return;
+    if (issues.length) {
+      if (!d.businessName?.trim()) setTab("Customer");
+      return;
+    }
     setBusy(true);
     try {
       await onSave(d);
@@ -1240,18 +1249,14 @@ function DealEditor({
       >
         <form onSubmit={submit}>
           <header className="editor-header">
-            <div className="eyebrow">
-              {demo && d.id?.startsWith("demo-")
-                ? "DEMO MERCHANT"
-                : "MERCHANT WORKSPACE"}
-            </div>
+            <div className="eyebrow">CUSTOMER DETAILS</div>
             <div>
               <h2 id="editor-title">{d.businessName || "A new opportunity"}</h2>
               <button
                 type="button"
                 className="icon-button"
                 onClick={onClose}
-                aria-label="Close merchant"
+                aria-label="Close customer"
               >
                 <X size={22} />
               </button>
@@ -1260,7 +1265,8 @@ function DealEditor({
           </header>
           <div className="editor-tabs">
             {[
-              "Merchant",
+              "Customer",
+              "Scan documents",
               "Statement",
               "AC offers",
               "Meeting notes",
@@ -1290,51 +1296,56 @@ function DealEditor({
                 </ul>
               </div>
             )}
-            {tab === "Merchant" && (
+            {tab === "Customer" && (
               <>
-                <div className="form-section-title">
-                  <h3>Meet the merchant</h3>
-                  <p>Start with the people behind the business.</p>
+                <div className="form-section-title customer-intro">
+                  <h3>
+                    {d.id ? "Customer details" : "Start with the essentials"}
+                  </h3>
+                  <p>
+                    Save a name now. Add details as the conversation moves on.
+                  </p>
                 </div>
-                <div className="form-grid">
+                <div className="customer-quick-actions">
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={() => setTab("Scan documents")}
+                  >
+                    <Camera size={18} />
+                    Scan a document
+                  </button>
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => setTab("Statement")}
+                  >
+                    Compare rates
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+                <div className="form-grid customer-essentials">
                   <Field
                     label="Business name"
                     value={d.businessName}
                     onChange={(v) => set("businessName", v)}
                     required
-                    placeholder="e.g. The Greenhouse Kitchen"
+                    placeholder="Customer's trading name"
+                    autoComplete="organization"
+                    autoFocus={!initial.id}
                   />
                   <Field
                     label="Contact person"
                     value={d.contactName}
                     onChange={(v) => set("contactName", v)}
-                    placeholder="Full name"
-                  />
-                  <Field
-                    label="Contact email"
-                    type="email"
-                    value={d.email}
-                    onChange={(v) => set("email", v)}
-                    placeholder="name@business.co.uk"
-                  />
-                  <Field
-                    label="Contact phone"
-                    type="tel"
-                    value={d.phone}
-                    onChange={(v) => set("phone", v)}
-                    placeholder="Phone number"
-                  />
-                  <Field
-                    label="Meeting date"
-                    type="date"
-                    value={d.meetingDate}
-                    onChange={(v) => set("meetingDate", v)}
+                    placeholder="Who are you speaking to?"
+                    autoComplete="name"
                   />
                   <Field
                     label="Current provider"
                     value={d.provider}
                     onChange={(v) => set("provider", v)}
-                    placeholder="Choose or type their payment provider"
+                    placeholder="Choose or type provider"
                     list="provider-suggestions"
                     maxLength={300}
                   />
@@ -1359,41 +1370,95 @@ function DealEditor({
                       <option key={provider} value={provider} />
                     ))}
                   </datalist>
-                  <label className="field full-width">
-                    <span>Sales status</span>
-                    <select
-                      value={d.status}
-                      onChange={(e) => {
-                        set("status", e.target.value);
-                        if (e.target.value === "Won") {
-                          set("saleDate", d.saleDate || isoToday());
-                          setTab("Sale details");
-                        }
-                      }}
-                    >
-                      {STATUSES.map((s) => (
-                        <option key={s}>{s}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="field full-width">
-                    <span>Notes & next steps</span>
-                    <textarea
-                      value={d.notes}
-                      onChange={(e) => set("notes", e.target.value)}
-                      placeholder="What matters to this merchant? What happens next?"
-                      rows={4}
+                </div>
+                <div className="customer-status">
+                  <span className="field-label">Sales status</span>
+                  <div
+                    className="quick-status-options"
+                    role="group"
+                    aria-label="Sales status"
+                  >
+                    {STATUSES.map((status) => (
+                      <button
+                        type="button"
+                        key={status}
+                        className={d.status === status ? "selected" : ""}
+                        aria-pressed={d.status === status}
+                        onClick={() => {
+                          set("status", status);
+                          if (status === "Won") {
+                            set("saleDate", d.saleDate || isoToday());
+                            setTab("Sale details");
+                          }
+                        }}
+                      >
+                        {status}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <details className="customer-more-details">
+                  <summary>
+                    Contact details & next steps
+                    <ChevronDown size={17} />
+                  </summary>
+                  <div className="form-grid">
+                    <Field
+                      label="Contact phone"
+                      type="tel"
+                      value={d.phone}
+                      onChange={(v) => set("phone", v)}
+                      placeholder="Phone number"
+                      autoComplete="tel"
                     />
-                  </label>
-                </div>
-                <div className="notice">
-                  <Info size={17} />
-                  <p>
-                    When you mark a merchant as <strong>Won</strong>, we’ll
-                    prompt you for sale details and the document checklist.
-                  </p>
-                </div>
+                    <Field
+                      label="Contact email"
+                      type="email"
+                      value={d.email}
+                      onChange={(v) => set("email", v)}
+                      placeholder="name@business.co.uk"
+                      autoComplete="email"
+                    />
+                    <Field
+                      label="Meeting date"
+                      type="date"
+                      value={d.meetingDate}
+                      onChange={(v) => set("meetingDate", v)}
+                    />
+                    <label className="field full-width">
+                      <span>Notes & next steps</span>
+                      <textarea
+                        value={d.notes || ""}
+                        onChange={(e) => set("notes", e.target.value)}
+                        placeholder="What matters to them? What happens next?"
+                        rows={3}
+                      />
+                    </label>
+                  </div>
+                </details>
+                {d.status === "Won" && (
+                  <div className="notice">
+                    <Info size={17} />
+                    <p>
+                      Keep the signed sale and required documents up to date in
+                      Sale details.
+                    </p>
+                  </div>
+                )}
               </>
+            )}
+            {tab === "Scan documents" && (
+              <DocumentCapture
+                deal={d}
+                onApply={(patch) => {
+                  setD((s) => ({
+                    ...s,
+                    ...patch,
+                    saleInfo: { ...s.saleInfo, ...patch.saleInfo },
+                  }));
+                  setTab("Customer");
+                }}
+              />
             )}
             {tab === "Statement" && (
               <>
@@ -1891,14 +1956,14 @@ function DealEditor({
                   type="button"
                   className="delete-button"
                   onClick={() => setDeletePrompt(true)}
-                  aria-label="Delete merchant"
+                  aria-label="Delete customer"
                 >
                   <Trash2 size={17} />
                 </button>
               )}
               {deletePrompt && (
                 <span className="delete-confirm">
-                  Delete this merchant?{" "}
+                  Delete this customer?{" "}
                   <button
                     type="button"
                     disabled={busy}
@@ -1932,11 +1997,7 @@ function DealEditor({
                 Cancel
               </button>
               <button disabled={busy} className="button primary" type="submit">
-                {busy
-                  ? "Saving…"
-                  : demo && d.id?.startsWith("demo-")
-                    ? "Save demo changes"
-                    : "Save merchant"}
+                {busy ? "Saving…" : "Save customer"}
                 <Check size={16} />
               </button>
             </div>
