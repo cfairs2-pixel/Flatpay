@@ -1,0 +1,2 @@
+Local PDF reading uses Mozilla PDF.js (pdfjs-dist 5.4.296), under Apache-2.0. Bundled font and decoder notices are preserved in their respective directories. Source: https://github.com/mozilla/pdf.js
+Statement files and extracted text are processed on-device, not uploaded by the reader. Image OCR uses the app's separately hosted Tesseract assets.

@@ -1,0 +1,57 @@
+html { min-height: 100%; -webkit-text-size-adjust: 100%; }
+body { overscroll-behavior-y: contain; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button, a { touch-action: manipulation; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #74a983;
+  outline-offset: 3px;
+}
+@media (max-width: 720px) {
+  .main-shell > .topbar { height: calc(54px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); }
+  .main-shell > .mobile-quickbar { top: calc(54px + env(safe-area-inset-top)); }
+  .topbar .breadcrumb { flex: 1 1 0; min-width: 0; }
+  .topbar .breadcrumb strong { min-width: 0; }
+  /* The compiled mobile stylesheet caps this at 116px with overflow:hidden.
+     Remove that cap so the account control remains visible and tappable. */
+  .topbar .topbar-right {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    font-size: 0;
+  }
+  .topbar .topbar-right .cloud-account-button {
+    position: relative;
+    flex: 0 0 auto;
+    max-width: min(49vw, 190px);
+    min-height: 44px;
+    margin: 0;
+    padding: 8px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .topbar .topbar-right[data-offline]::before {
+    max-width: 70px;
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .main-shell { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  .sidebar.mobile-open { padding-top: max(20px, env(safe-area-inset-top)); padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .main-shell > main { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  input, select, textarea { font-size: max(16px, 1em); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

@@ -1,0 +1,3 @@
+On-device OCR uses Tesseract.js 7.0.0 and Tesseract.js-core under Apache-2.0. English trained data is from @tesseract.js-data/eng 1.0.0.
+Sources: https://github.com/naptha/tesseract.js ; https://github.com/naptha/tesseract.js-core ; https://github.com/naptha/tessdata
+Photos and recognised text are not transmitted by this reader.

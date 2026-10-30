@@ -1,0 +1,6 @@
+# Preserve upstream assets byte-for-byte; keep reviews focused on authored code.
+public/ocr/** linguist-vendored -whitespace
+public/statement-reader/** linguist-vendored -whitespace
+public/vendor/** linguist-vendored -whitespace
+public/workspace.js linguist-generated -whitespace
+public/domain.mjs linguist-generated -whitespace
