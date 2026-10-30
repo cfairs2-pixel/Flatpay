@@ -1,0 +1,71 @@
+name: Deploy myflatpay to GitHub Pages
+
+# Publishing is explicit: run this workflow from the Actions tab.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: myflatpay-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      pages: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify public Supabase settings
+        run: |
+          node --input-type=module <<'JS'
+          import { config } from './public/config.js';
+          if (!config.supabaseUrl || !config.supabasePublishableKey) {
+            throw new Error('Set the Supabase project URL and public publishable/anon key in public/config.js before deployment.');
+          }
+          const url = new URL(config.supabaseUrl);
+          if (url.protocol !== 'https:') throw new Error('Use the HTTPS Supabase project URL.');
+          const key = config.supabasePublishableKey;
+          if (key.startsWith('sb_secret_')) throw new Error('A Supabase secret key must not be published.');
+          if (key.split('.').length === 3) {
+            const payload = JSON.parse(Buffer.from(key.split('.')[1], 'base64url').toString('utf8'));
+            if (payload.role !== 'anon') throw new Error('Use a public publishable or legacy anon key, never a service role key.');
+          }
+          JS
+      - name: Test database and app behavior
+        run: npm test
+      - name: Check syntax and installation assets
+        run: npm run check
+      - name: Build static app
+        run: npm run build
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload only built app files
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
