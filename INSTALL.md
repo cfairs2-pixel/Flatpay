@@ -83,13 +83,18 @@ On Windows the command may be `py -m http.server 8000 --directory dist`. Open `h
 
 ## 5. Publish with GitHub Pages
 
-1. Add these files to the GitHub repository that should host the app, preserving the `.github/workflows/` folder. Commit `public/config.js` with only its public settings.
-2. Open the repository's **Settings → Pages** and choose **GitHub Actions** as the build/deployment source. Your account and repository plan must support Pages.
-3. Open **Actions → Deploy myflatpay to GitHub Pages → Run workflow**. Select the branch containing these files and run it.
-4. Wait for the build and deployment jobs to complete. Open the URL from the deployment's `github-pages` environment.
-5. Make sure that exact URL appears in Supabase Auth's Site URL and redirect allowlist.
+The current app address is [https://cfairs2-pixel.github.io/Flatpay/](https://cfairs2-pixel.github.io/Flatpay/). Its deployment uses the existing **Publish myflatpay** workflow on the `gh-pages` branch. Built files from `dist/` are published at that branch's root, and its existing `.github/workflows/publish-myflatpay.yml` is preserved. Keep the editable source in the source branch/PR; for updates through this path, build the reviewed source and update only the generated static release files on `gh-pages`. That workflow runs when `gh-pages` is pushed.
 
-The workflow runs on **`workflow_dispatch` only**. Pushing a commit does not publish it; run the workflow again when you want to release an update. It checks the source, tests it, builds `dist/`, uploads only that directory and deploys the Pages artifact. The app supports both a domain root and a project path such as `/Flatpay/` without hardcoding the repository name.
+To use the new, manually triggered source-build workflow:
+
+1. Add these source files to the repository, preserving `.github/workflows/`, and commit `public/config.js` with only its public settings.
+2. Ensure `.github/workflows/deploy-pages.yml` is present on the repository's **default branch**. For the current feature branch, review and merge the source PR first. GitHub's normal `workflow_dispatch` discovery requires a workflow on the default branch; selecting the feature branch alone does not provide this prerequisite.
+3. Open the repository's **Settings → Pages** and choose **GitHub Actions** as the build/deployment source. Your account and repository plan must support Pages. If the `github-pages` environment has deployment branch restrictions, the branch you select must be allowed there.
+4. Open **Actions → Deploy myflatpay to GitHub Pages → Run workflow**. Select the branch containing the reviewed source and run it.
+5. Wait for the build and deployment jobs to complete. Open the URL from the deployment's `github-pages` environment.
+6. Make sure that exact URL appears in Supabase Auth's Site URL and redirect allowlist.
+
+The new source-build workflow runs on **`workflow_dispatch` only**. Pushing a source commit does not run it; explicitly dispatch it for a release. It checks the source, tests it, builds `dist/`, uploads only that directory and deploys the Pages artifact. The app supports both a domain root and a project path such as `/Flatpay/` without hardcoding the repository name.
 
 GitHub Pages serves public static files. The public connection key is expected to be visible, while records stay protected by Supabase authentication and row-level policies. Do not add customer JSON backups or database credentials to the repository.
 

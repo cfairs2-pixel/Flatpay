@@ -2,7 +2,7 @@
 
 Your existing sales workspace, adapted for installation on **iPhone and Android**, with **Supabase email/password login**, a shared cloud database, and backup/import tools. Sign into the same account on either phone to use the same customers, notes, offers, commission records and assistant settings.
 
-The app is prepared for setup. Its public connection settings point to your Supabase project. **The database migration has not been applied, and the app has not been published.** Follow [INSTALL.md](INSTALL.md) to finish setup and publish the app.
+The app is live at [https://cfairs2-pixel.github.io/Flatpay/](https://cfairs2-pixel.github.io/Flatpay/). Its public Supabase connection settings are configured, and the live database tables and workspace RPC reject anonymous access. The hosted app files match the validated production build. Confirm the exact app URL in Supabase Auth's Site URL and redirect allowlist, then create an account and confirm its email. Live account sign-in, email delivery and installation on physical phones still need checking; see [VERIFICATION.md](VERIFICATION.md).
 
 ## Set it up
 
@@ -18,7 +18,7 @@ The app is prepared for setup. Its public connection settings point to your Supa
    npm run build
    ```
 
-5. Publish the contents of `dist/` to an HTTPS static host. The included [GitHub Pages workflow](.github/workflows/deploy-pages.yml) deploys only when you explicitly run it from GitHub's Actions tab.
+5. Publish the contents of `dist/` to an HTTPS static host. The current publication uses the `gh-pages` branch and its existing **Publish myflatpay** workflow. The included [manual Pages workflow](.github/workflows/deploy-pages.yml) becomes available for normal dispatch after it is present on the default branch; see [INSTALL.md](INSTALL.md#5-publish-with-github-pages).
 
 GitHub Pages hosts the app files; Supabase provides authentication and the database. You do not need a separate application server. Full setup, email confirmation, password reset and hosting instructions are in [INSTALL.md](INSTALL.md).
 
