@@ -51,6 +51,14 @@ The app creates recovery points before the first change of a UTC day, before del
 
 Use **Account & backups → Download full backup** regularly and keep a copy outside Supabase. Supabase-managed backups, their retention and point-in-time recovery depend on your selected plan and settings. Verify them in your dashboard; this project does not enable an offsite backup service automatically.
 
+## Statements, terminal rental and PCI fees
+
+The statement reader recognises annual card-payment summaries as well as monthly statements. It keeps the original totals and period, then calculates average monthly figures. Review OCR suggestions against the document; an annual summary is not a single month's turnover, and a contract expiry date is not the statement end date.
+
+During review, answer the terminal-rental and PCI-fee questions. Choose **already included**, **add separately**, or **no fee** for each. For a separate fee, enter its amount and whether it is billed monthly, quarterly, annually, or for the statement period. Rental is the **total across all terminals**. Use the same VAT basis as the statement total. Only separately billed amounts are added; tariff examples and uncharged minimum fees are not added automatically.
+
+The current cost and effective rate recalculate immediately. Apply the reviewed figures, then **Save customer**. The original total and fee answers are stored together. Use **Edit fees and recalculate** on a saved statement to change an answer without uploading it again; repeated application does not add the fees twice. Unrecorded new-provider fees remain excluded from savings estimates.
+
 ## Email and account access
 
 Supabase handles sign-in, email confirmation and password reset. The app uses a 12-character minimum for new passwords. Supabase email delivery settings and limits apply; configure a suitable SMTP provider before relying on account emails in normal use.

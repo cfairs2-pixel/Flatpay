@@ -1,6 +1,6 @@
 /* Only generic, public assets are cached. Workspace and authentication responses
  * must always reach the server. Bump VERSION when changing cached public assets. */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const APP_BASE = new URL(self.registration.scope);
 const appURL = path => new URL(path, APP_BASE).href;
 const PREFIX = `myflatpay-pwa-${encodeURIComponent(APP_BASE.pathname)}-`;
@@ -17,15 +17,28 @@ const PUBLIC_ASSETS = [
 const MAX_READER_ENTRIES = 48;
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(PUBLIC_ASSETS)));
+  event.waitUntil((async () => {
+    try {
+      const cache = await caches.open(SHELL_CACHE);
+      await cache.addAll(PUBLIC_ASSETS);
+    } catch {
+      // Optional offline assets must not prevent an online app update.
+    }
+  })());
   // An update waits until the user closes the old app or explicitly accepts it.
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keep = new Set([SHELL_CACHE, READER_CACHE]);
-    for (const name of await caches.keys()) {
-      if (name.startsWith(PREFIX) && !keep.has(name)) await caches.delete(name);
+    try {
+      for (const name of await caches.keys()) {
+        if (name.startsWith(PREFIX) && !keep.has(name)) {
+          try { await caches.delete(name); } catch { /* Storage cleanup is optional. */ }
+        }
+      }
+    } catch {
+      // A denied Cache Storage API must not prevent this worker taking control.
     }
     await self.clients.claim();
   })());
@@ -36,15 +49,28 @@ function isReaderAsset(path) {
     && !path.includes('..');
 }
 
+async function matchPublicAsset(request) {
+  try { return await caches.match(request); } catch { return undefined; }
+}
+
 async function cacheReader(request) {
-  const cache = await caches.open(READER_CACHE);
-  const cached = await cache.match(request);
-  if (cached) return cached;
+  let cache;
+  try {
+    cache = await caches.open(READER_CACHE);
+    const cached = await cache.match(request);
+    if (cached) return cached;
+  } catch {
+    // Storage can be unavailable or full on a phone. Reading still works online.
+  }
   const response = await fetch(request);
-  if (response.ok && response.type === 'basic') {
-    await cache.put(request, response.clone());
-    const keys = await cache.keys();
-    for (const key of keys.slice(0, Math.max(0, keys.length - MAX_READER_ENTRIES))) await cache.delete(key);
+  if (cache && response.ok && response.type === 'basic') {
+    try {
+      await cache.put(request, response.clone());
+      const keys = await cache.keys();
+      for (const key of keys.slice(0, Math.max(0, keys.length - MAX_READER_ENTRIES))) await cache.delete(key);
+    } catch {
+      // Caching is optional: never discard a valid reader asset after fetching it.
+    }
   }
   return response;
 }
@@ -62,7 +88,7 @@ self.addEventListener('fetch', event => {
       try {
         return await fetch(request, { cache: 'no-store' });
       } catch {
-        return (await caches.match(OFFLINE_URL)) || new Response(
+        return (await matchPublicAsset(OFFLINE_URL)) || new Response(
           '<!doctype html><meta name="viewport" content="width=device-width"><title>myflatpay is offline</title><h1>Reconnect to open your workspace</h1><p>Your saved records remain in your online account.</p><button onclick="location.reload()">Try again</button>',
           { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } },
         );
@@ -71,7 +97,7 @@ self.addEventListener('fetch', event => {
     return;
   }
   if (PUBLIC_ASSETS.includes(url.href) && !url.search) {
-    event.respondWith((async () => (await caches.match(request)) || fetch(request))());
+    event.respondWith((async () => (await matchPublicAsset(request)) || fetch(request))());
     return;
   }
   if (isReaderAsset(relativePath) && !url.search) event.respondWith(cacheReader(request));

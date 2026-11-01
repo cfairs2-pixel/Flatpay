@@ -47,6 +47,23 @@ const expectError = (action, prefix) => assert.rejects(action, (error) => {
   return true;
 });
 
+test('statement fee review and original annual totals survive save, export and restore', async () => {
+  const owner = await account();
+  const statementAnalysis = {
+    version: 1, currency: 'GBP', reviewedAt: '2026-11-01T12:00:00.000Z',
+    values: { periodMonths: 12, turnover: 480000, totalCharges: 3600 },
+    feeReview: { version: 1, terminalRental: { status: 'separate', amount: 40, frequency: 'monthly' }, pciFees: { status: 'separate', amount: 120, frequency: 'annual' } },
+  };
+  const saved = await rpc(owner, 'deals.save', { deal: { businessName: 'Synthetic fee review', monthlyVolume: 40000, currentCharges: 350, statementAnalysis } });
+  assert.deepEqual(saved.statementAnalysis, statementAnalysis);
+  const backup = await rpc(owner, 'export');
+  await rpc(owner, 'backups.restore', { backup, confirm: 'REPLACE MY WORKSPACE' });
+  const restored = (await rpc(owner, 'deals.list')).find(deal => deal.id === saved.id);
+  assert.equal(restored.currentCharges, 350);
+  assert.equal(restored.statementAnalysis.values.totalCharges, 3600);
+  assert.deepEqual(restored.statementAnalysis.feeReview, statementAnalysis.feeReview);
+});
+
 test('RPC requires authenticated identity; helpers and direct writes cannot bypass it', async () => {
   const alice = await account();
   await assert.rejects(() => rpc(null, 'deals.list', {}, 'anon'), /permission denied for function flatpay_workspace/);

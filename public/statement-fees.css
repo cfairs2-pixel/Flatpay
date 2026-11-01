@@ -1,0 +1,17 @@
+.merchant-statement .statement-fee-review{margin:22px 0;padding:20px;background:#f7faf7;border:1px solid #cbd9cb;border-radius:14px}
+.merchant-statement .statement-fee-review h4{font-size:17px;margin:0 0 10px;letter-spacing:-.3px}
+.merchant-statement .statement-fee-review p{line-height:1.55;font-size:13px}
+.merchant-statement .statement-fee-choice{padding:14px;border:1px solid #d9dfd9;border-radius:10px;margin:16px 0;background:#fff;min-width:0}
+.merchant-statement .statement-fee-choice legend{font-size:14px;font-weight:700;padding:0 6px}
+.merchant-statement .statement-fee-choice label{display:block;font-size:13px;font-weight:600;margin:6px 0 8px;line-height:1.5}
+.merchant-statement .statement-fee-choice input,.merchant-statement .statement-fee-choice select{width:100%;max-width:100%;box-sizing:border-box;min-height:46px;padding:11px 12px;font:inherit;font-size:16px;color:#111;border:1px solid #cbd0cb;background:#fff;border-radius:8px}
+.merchant-statement .statement-fee-inputs{display:grid;gap:4px;margin-top:12px}
+.merchant-statement .statement-fee-help{color:#606660;font-size:12px}
+.merchant-statement .statement-fee-totals{margin:18px 0 12px}
+.merchant-statement .statement-fee-totals>div{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #dce4dc;padding:10px 0;font-size:13px}
+.merchant-statement .statement-fee-totals>div:last-child{font-weight:700}
+.merchant-statement .statement-fee-totals dt{min-width:0}
+.merchant-statement .statement-fee-totals dd{margin:0;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.merchant-statement .statement-fee-status{font-weight:600}
+.merchant-statement .statement-fee-choice input:focus-visible,.merchant-statement .statement-fee-choice select:focus-visible{outline:3px solid #99bc99;outline-offset:2px}
+@media(max-width:720px){.merchant-statement .statement-fee-review{padding:14px}.merchant-statement .statement-fee-choice{padding:12px}.merchant-statement .statement-fee-totals>div{font-size:12px;gap:8px}}

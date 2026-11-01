@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
-for (const file of ['public/cloud-client.js','public/cloud-api.mjs','public/workspace.js','public/service-worker.js']) {
+for (const file of ['public/cloud-client.js','public/cloud-api.mjs','public/workspace.js','public/service-worker.js','public/statement-summary.mjs','public/statement-fees.mjs']) {
  const check=spawnSync(process.execPath,['--check',file],{stdio:'inherit'}); assert.equal(check.status,0,file);
 }
 const m=JSON.parse(readFileSync('public/manifest.webmanifest','utf8'));
