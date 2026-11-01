@@ -12,7 +12,7 @@ Checked on 30 October 2026.
 
 The live database migration is now confirmed present. No live user accounts or customer records were created by these checks. Authenticated live sign-up/sign-in, live record operations, actual email delivery and installation on physical iPhone/Android devices remain unverified. Supabase-managed backup retention and any SMTP provider remain settings for the project owner to confirm.
 
-The static release is on `gh-pages` at commit `c4b2c9c17a4a9a560e11c8a67016d71f38a17aba`, and the live hosted files have been verified. Its existing **Publish myflatpay** workflow remains the publishing route; editable source remains in its source PR. Direct Chromium HTTPS navigation is limited by the execution environment's proxy certificate trust, so live service-worker registration and physical phone installation were not verified. TLS remained enabled for all HTTP verification.
+The static release is on `gh-pages` at commit `b295d18959bc0a2e87ee6c03e201c142f310a591`, and the live hosted files have been verified. Its existing **Publish myflatpay** workflow remains the publishing route; editable source remains in its source PR. Direct Chromium HTTPS navigation is limited by the execution environment's proxy certificate trust, so live service-worker registration and physical phone installation were not verified. TLS remained enabled for all HTTP verification.
 
 To complete account setup: verify `https://cfairs2-pixel.github.io/Flatpay/` in Supabase Auth's Site URL and redirect allowlist, then sign up, confirm the email and install from Safari/Chrome. Keep a downloaded full backup outside the database.
 
@@ -23,3 +23,5 @@ To complete account setup: verify `https://cfairs2-pixel.github.io/Flatpay/` in 
 - The rendered phone review passes terminal/PCI inclusion prompts, monthly/annual normalization, applying adjusted costs, reopening saved answers, and repeated application without double counting. The fee panel fits a 390-pixel viewport.
 - PostgreSQL round-trip testing confirms the existing schema preserves `statementAnalysis.feeReview` and the unadjusted statement totals. No database migration is needed for the added optional metadata.
 - The example photo was reviewed visually and its labels tested as text. End-to-end image OCR used a synthetic document with the annual-summary layout, not the original attached photo. No customer statement image or real statement amounts are included in the public regression fixtures.
+
+The reader and fee-review release is live: the HTML, workspace, domain validation, annual-summary parser, fee module, fee stylesheet and service worker each return HTTP 200 and match the production build byte for byte.
