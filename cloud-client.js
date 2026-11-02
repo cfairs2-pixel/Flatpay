@@ -1,11 +1,14 @@
 // Supabase owns authentication and database access; the compiled workspace
 // loads only after its user is authenticated.
-import { createClient } from './vendor/supabase.js';
-import { config } from './config.js';
-import { createCloudApi } from './cloud-api.mjs';
+import { createClient } from './vendor/supabase.js?v=2028704f4d270f51';
+import { config } from './config.js?v=2028704f4d270f51';
+import { createCloudApi } from './cloud-api.mjs?v=2028704f4d270f51';
 const root = document.getElementById('root');
 const nativeFetch = window.fetch.bind(window);
 const baseUrl = new URL('./', import.meta.url).href;
+const appBuild = document.querySelector('meta[name="app-build"]')?.content || 'development';
+let lastVersionCheck = 0;
+let versionCheckPending = false;
 let setupError = '';
 let supabase;
 let recoveryMode = /(?:#|&)type=recovery(?:&|$)/.test(location.hash);
@@ -70,6 +73,44 @@ function element(tag, text, attrs = {}) {
   if (text !== undefined) node.textContent = text;
   for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
   return node;
+}
+
+function showUpdateNotice() {
+  if (document.getElementById('cloud-update-notice')) return;
+  const notice = element('aside', undefined, {
+    id: 'cloud-update-notice', class: 'cloud-update-banner', role: 'status', 'aria-live': 'polite',
+  });
+  notice.append(element('span', 'An app update is ready. Save changes, then reload.'));
+  const reload = element('button', 'Reload app', { type: 'button', class: 'cloud-primary' });
+  reload.addEventListener('click', () => location.reload());
+  notice.append(reload);
+  document.body.append(notice);
+}
+
+async function checkAppVersion() {
+  // Source previews have no release manifest and should not probe for one.
+  if (appBuild === 'development' || document.hidden || navigator.onLine === false || versionCheckPending) return;
+  const now = Date.now();
+  if (now - lastVersionCheck < 60000) return;
+  lastVersionCheck = now;
+  versionCheckPending = true;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await nativeFetch(new URL('version.json', baseUrl), {
+      cache: 'no-store', credentials: 'same-origin', signal: controller.signal,
+    });
+    if (!response.ok) return;
+    const version = await response.json();
+    if (typeof version.buildId !== 'string' || !/^[a-f0-9]{16}$/.test(version.buildId)) return;
+    if (version.buildId !== appBuild) showUpdateNotice();
+    else document.getElementById('cloud-update-notice')?.remove();
+  } catch {
+    // Version checks are optional and must not interrupt sign-in or saved data.
+  } finally {
+    clearTimeout(timeout);
+    versionCheckPending = false;
+  }
 }
 
 async function api(path, options = {}) {
@@ -209,7 +250,7 @@ async function openWorkspace(user) {
   window.flatpayUser = { ...user, name: user.username };
   if (!mounted) {
     root.replaceChildren();
-    try { await import('./workspace.js'); }
+    try { await import('./workspace.js?v=2028704f4d270f51'); }
     catch (error) {
       const panel = element('section', undefined, { class: 'cloud-auth' });
       panel.append(element('h1', 'Your account is ready'), element('p', 'The workspace could not finish loading. Check your connection, then try again.'));
@@ -243,6 +284,7 @@ function refreshWorkspace() {
 async function showAccount() {
   const { content, modal } = dialog('Account & backups');
   content.append(element('p', `Signed in as ${currentUser.username}. Your account works on iPhone, Android and your computer.`));
+  content.append(element('p', `App version: ${appBuild}`, { class: 'cloud-build-label' }));
   const actions = element('div', undefined, { class: 'cloud-actions' });
   const notice = element('p', '', { class: 'cloud-message', role: 'status' });
   const run = async (button, action) => {
@@ -343,8 +385,12 @@ async function showAccount() {
 
 window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPrompt = event; });
 window.addEventListener('focus', refreshWorkspace);
+window.addEventListener('focus', checkAppVersion);
 window.addEventListener('online', refreshWorkspace);
+window.addEventListener('online', checkAppVersion);
 document.addEventListener('visibilitychange', refreshWorkspace);
+document.addEventListener('visibilitychange', checkAppVersion);
+void checkAppVersion();
 setInterval(refreshWorkspace, 30000);
 window.addEventListener('offline', () => {
   const text = document.querySelector('.topbar-right');

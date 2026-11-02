@@ -29,6 +29,11 @@ body:has(>.cloud-dialog[open]){overflow:hidden}
 .cloud-backup-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eee;font-size:12px;line-height:1.5}
 .cloud-signout{margin-top:20px}
 .cloud-account-button{margin-left:8px;font-size:12px;white-space:nowrap}
+.cloud-dialog p.cloud-build-label{font-size:12px;color:#777;overflow-wrap:anywhere}
+.cloud-update-banner{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:160;display:flex;align-items:center;gap:16px;width:max-content;max-width:calc(100% - 32px);box-sizing:border-box;padding:14px 16px;border:1px solid #e3bacb;border-radius:12px;background:#fff5f9;color:#111;box-shadow:0 8px 30px #1112;font:13px/1.45 Inter,Arial,sans-serif}
+.cloud-update-banner>span{max-width:320px}
+.cloud-update-banner>button{flex-shrink:0}
+@media(max-width:720px){.cloud-update-banner{bottom:calc(88px + env(safe-area-inset-bottom));gap:12px;width:calc(100% - 24px);max-width:none;padding:12px;font-size:12px}.cloud-update-banner>button{font-size:12px;padding:9px 12px}}
 .topbar-right[data-offline]::before{content:attr(data-offline);color:#9d2323;font-size:12px}
 .cloud-dialog button:disabled,.cloud-auth button:disabled{opacity:.5;cursor:wait}
 .cloud-auth button:focus-visible,.cloud-dialog button:focus-visible,.cloud-account-button:focus-visible,.cloud-field input:focus-visible{outline:3px solid #94bd9d;outline-offset:3px}
