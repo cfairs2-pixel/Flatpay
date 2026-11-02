@@ -12,7 +12,7 @@ Checked on 30 October 2026.
 
 The live database migration is now confirmed present. No live user accounts or customer records were created by these checks. Authenticated live sign-up/sign-in, live record operations, actual email delivery and installation on physical iPhone/Android devices remain unverified. Supabase-managed backup retention and any SMTP provider remain settings for the project owner to confirm.
 
-The static release is on `gh-pages` at commit `b295d18959bc0a2e87ee6c03e201c142f310a591`, and the live hosted files have been verified. Its existing **Publish myflatpay** workflow remains the publishing route; editable source remains in its source PR. Direct Chromium HTTPS navigation is limited by the execution environment's proxy certificate trust, so live service-worker registration and physical phone installation were not verified. TLS remained enabled for all HTTP verification.
+The static release is on `gh-pages` at commit `691de75bf8073af88eb2813e1d3069625fcaeb8f`, and the live hosted files have been verified. Its existing **Publish myflatpay** workflow remains the publishing route; editable source remains in its source PR. Direct Chromium HTTPS navigation is limited by the execution environment's proxy certificate trust, so live service-worker registration and physical phone installation were not verified. TLS remained enabled for all HTTP verification.
 
 To complete account setup: verify `https://cfairs2-pixel.github.io/Flatpay/` in Supabase Auth's Site URL and redirect allowlist, then sign up, confirm the email and install from Safari/Chrome. Keep a downloaded full backup outside the database.
 
@@ -37,3 +37,5 @@ The photo path now requests Tesseract's word boxes and passes matched total cand
 - Build `2028704f4d270f51` versions the full application module graph, publishes `version.json`, and displays the version under Account & backups. A safe update banner asks the user to save before choosing to reload; it does not force a reload or clear data.
 
 The original inline photo was not available as a local image file. Its exact failing recognised text is still requested from the user. These checks establish the reproduced layout fix, not a claim that every number on the original photograph has been verified by OCR.
+
+The layout-aware release is live at build `2028704f4d270f51`. Ten production artifacts (including the version manifest and layout extractor) returned HTTP 200 and matched the built release byte for byte. The live sign-in/reset forms, manifest scope and icons also pass rendering checks using the configured trusted HTTPS transport.
