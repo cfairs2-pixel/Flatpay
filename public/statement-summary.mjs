@@ -54,7 +54,7 @@ function annualPeriod(text) {
 }
 
 /** Extend the existing parser's result without inventing dates or card shares. */
-export function extendStatementSummary(rawText, baseline = { values: {}, evidence: {}, warnings: [] }) {
+export function extendStatementSummary(rawText, baseline = { values: {}, evidence: {}, warnings: [] }, layout = []) {
   if (typeof rawText !== 'string') throw new TypeError('Provide statement text to read.');
   if (rawText.length > 300000) throw new Error('Statement text exceeds 300,000 characters. Read fewer pages at a time.');
   const text = normalize(rawText);
@@ -88,13 +88,34 @@ export function extendStatementSummary(rawText, baseline = { values: {}, evidenc
 
   const found = {};
   if (!currencyMismatch(flat)) {
+    const spatial = Array.isArray(layout) ? layout : Array.isArray(layout?.candidates) ? layout.candidates : [];
+    const blocked = new Set(Array.isArray(layout?.blockedFields) ? layout.blockedFields : []);
     for (const [field, labels] of Object.entries(LABELS)) {
+      if (blocked.has(field)) {
+        delete values[field]; delete evidence[field];
+        warnings.push(`The page contains an unclear ${field === 'turnover' ? 'card-turnover' : 'total-charge'} amount. Enter it from the original statement.`);
+        continue;
+      }
       const candidates = [];
       for (const pattern of labels) for (const match of flat.matchAll(pattern)) {
         const value = afterLabel(flat, match);
         if (value !== null) candidates.push(value);
       }
       if (has(values, field)) candidates.push(values[field]);
+      const positions = spatial.filter(candidate => candidate?.field === field && typeof candidate.value === 'number' && Number.isFinite(candidate.value) && candidate.value >= 0 && candidate.value <= 1e15);
+      const positionValues = [...new Set(positions.map(candidate => candidate.value))];
+      if (positionValues.length === 1) {
+        if (candidates.some(value => value !== positionValues[0])) warnings.push(`The text reading order differs from the page layout for ${field === 'turnover' ? 'card turnover' : 'total charges'}. Check the matched amount against the original.`);
+        values[field] = positionValues[0];
+        evidence[field] = String(positions[0].evidence || 'Total matched to its label using the page layout').slice(0, 180);
+        found[field] = true;
+        continue;
+      }
+      if (positionValues.length > 1) {
+        delete values[field]; delete evidence[field];
+        warnings.push(`Different ${field === 'turnover' ? 'card-turnover' : 'total-charge'} totals were matched on the document. Enter the correct statement total.`);
+        continue;
+      }
       const unique = [...new Set(candidates)];
       if (unique.length === 1) {
         values[field] = unique[0];

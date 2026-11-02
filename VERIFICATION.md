@@ -25,3 +25,15 @@ To complete account setup: verify `https://cfairs2-pixel.github.io/Flatpay/` in 
 - The example photo was reviewed visually and its labels tested as text. End-to-end image OCR used a synthetic document with the annual-summary layout, not the original attached photo. No customer statement image or real statement amounts are included in the public regression fixtures.
 
 The reader and fee-review release is live: the HTML, workspace, domain validation, annual-summary parser, fee module, fee stylesheet and service worker each return HTTP 200 and match the production build byte for byte.
+
+## Layout-aware OCR correction
+
+The earlier OCR test image did not expose interleaved summary boxes. Further testing reproduced a substantive failure: OCR recognised the correct currency amounts, but the text-only parser lost their association with labels. Increasing image resolution did not fix that association.
+
+The photo path now requests Tesseract's word boxes and passes matched total candidates through the actual review UI. Labelled totals can be matched to values to their right or below; average-transaction and tariff figures are excluded. Ambiguous, shared or malformed matches require manual review. Low-confidence OCR has an explicit warning. Manual text corrections do not reuse image matches.
+
+- All 112 tests pass, including 38 spatial extraction cases based on three captured synthetic OCR layouts, the parser integration, and seven build/update tests.
+- Real file-upload browser checks pass for clean and perspective-skewed synthetic annual summaries. They exercise upload → OCR → label/value matching → displayed totals → explicit replacement of existing customer figures. The previously passing stacked-row photo and terminal/PCI fee review continue to pass.
+- Build `2028704f4d270f51` versions the full application module graph, publishes `version.json`, and displays the version under Account & backups. A safe update banner asks the user to save before choosing to reload; it does not force a reload or clear data.
+
+The original inline photo was not available as a local image file. Its exact failing recognised text is still requested from the user. These checks establish the reproduced layout fix, not a claim that every number on the original photograph has been verified by OCR.

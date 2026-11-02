@@ -55,9 +55,13 @@ Use **Account & backups → Download full backup** regularly and keep a copy out
 
 The statement reader recognises annual card-payment summaries as well as monthly statements. It keeps the original totals and period, then calculates average monthly figures. Review OCR suggestions against the document; an annual summary is not a single month's turnover, and a contract expiry date is not the statement end date.
 
+Photo OCR now retains word positions so a total can be matched to its label in side-by-side summary boxes or stacked label/value rows. Ambiguous matches are left for review rather than filled with a nearby average, tariff or unrelated amount. Low-confidence amounts have an explicit warning. Correcting or pasting the statement text starts a fresh text review and does not reuse the previous image's position matches.
+
 During review, answer the terminal-rental and PCI-fee questions. Choose **already included**, **add separately**, or **no fee** for each. For a separate fee, enter its amount and whether it is billed monthly, quarterly, annually, or for the statement period. Rental is the **total across all terminals**. Use the same VAT basis as the statement total. Only separately billed amounts are added; tariff examples and uncharged minimum fees are not added automatically.
 
 The current cost and effective rate recalculate immediately. Apply the reviewed figures, then **Save customer**. The original total and fee answers are stored together. Use **Edit fees and recalculate** on a saved statement to change an answer without uploading it again; repeated application does not add the fees twice. Unrecorded new-provider fees remain excluded from savings estimates.
+
+**Account & backups** shows the app version. Releases use versioned module URLs, and an open app checks for an update when you return to it. If an update is available, save any edits and choose **Reload app**; updates never force a reload or clear stored sign-in/data.
 
 ## Email and account access
 

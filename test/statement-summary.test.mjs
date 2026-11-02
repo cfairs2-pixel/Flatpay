@@ -142,3 +142,28 @@ test('multiple possible amounts and negative charge values are not silently sele
     assert.equal(negative.values.totalCharges, undefined, money);
   }
 });
+
+test('position-matched candidates recover totals from interleaved summary boxes', () => {
+  const text = 'Your card payments summary\nlast 12 months\nYour total card    Your total    Your average\ntransactions    charges    transaction value\n£120,000.00    £900.00    £25.00';
+  const result = parse(text, { candidates: [
+    { field: 'turnover', value: 120000, evidence: 'Card turnover matched in its summary box' },
+    { field: 'totalCharges', value: 900, evidence: 'Total charges matched in its summary box' },
+  ] });
+  assert.equal(result.values.turnover, 120000);
+  assert.equal(result.values.totalCharges, 900);
+  assert.equal(result.values.periodMonths, 12);
+  assert.match(result.evidence.totalCharges, /matched/);
+});
+
+test('an ambiguous spatial match cannot fall back to a guessed plain-text amount', () => {
+  const result = parse('Your card payments summary\nlast 12 months\nYour total charges £900.00\nYour total card transactions £120,000.00', { blockedFields: ['totalCharges'] });
+  assert.equal(result.values.totalCharges, undefined);
+  assert.equal(result.values.turnover, 120000);
+});
+
+test('conflicting layout totals require manual review and a text correction ignores old geometry', () => {
+  const text = 'Your card payments summary\nlast 12 months\nYour total charges £900.00';
+  const result = parse(text, { candidates: [{ field: 'totalCharges', value: 900 }, { field: 'totalCharges', value: 1000 }] });
+  assert.equal(result.values.totalCharges, undefined);
+  assert.equal(parse(text).values.totalCharges, 900);
+});
