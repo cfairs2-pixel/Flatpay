@@ -1,8 +1,8 @@
 // Supabase owns authentication and database access; the compiled workspace
 // loads only after its user is authenticated.
-import { createClient } from './vendor/supabase.js?v=2028704f4d270f51';
-import { config } from './config.js?v=2028704f4d270f51';
-import { createCloudApi } from './cloud-api.mjs?v=2028704f4d270f51';
+import { createClient } from './vendor/supabase.js?v=697dc948a22e8d27';
+import { config } from './config.js?v=697dc948a22e8d27';
+import { createCloudApi } from './cloud-api.mjs?v=697dc948a22e8d27';
 const root = document.getElementById('root');
 const nativeFetch = window.fetch.bind(window);
 const baseUrl = new URL('./', import.meta.url).href;
@@ -250,7 +250,7 @@ async function openWorkspace(user) {
   window.flatpayUser = { ...user, name: user.username };
   if (!mounted) {
     root.replaceChildren();
-    try { await import('./workspace.js?v=2028704f4d270f51'); }
+    try { await import('./workspace.js?v=697dc948a22e8d27'); }
     catch (error) {
       const panel = element('section', undefined, { class: 'cloud-auth' });
       panel.append(element('h1', 'Your account is ready'), element('p', 'The workspace could not finish loading. Check your connection, then try again.'));

@@ -1,5 +1,10 @@
 .merchant-statement .statement-fee-review{margin:22px 0;padding:20px;background:#f7faf7;border:1px solid #cbd9cb;border-radius:14px}
 .merchant-statement .statement-fee-review h4{font-size:17px;margin:0 0 10px;letter-spacing:-.3px}
+.merchant-statement .statement-rate-preview{display:grid;gap:7px;padding:16px;margin:0 0 20px;background:#fff;border:1px solid #cbd9cb;border-radius:10px}
+.merchant-statement .statement-rate-preview>span:first-child{font-weight:600;font-size:13px}
+.merchant-statement .statement-rate-preview strong{font-size:30px;line-height:1.2;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
+.merchant-statement .statement-rate-preview small{font-size:12px;line-height:1.5;color:#606660}
+.merchant-statement .statement-rate-message,.merchant-statement .statement-result-note{font-size:13px!important;line-height:1.5!important;font-weight:500;letter-spacing:normal}
 .merchant-statement .statement-fee-review p{line-height:1.55;font-size:13px}
 .merchant-statement .statement-fee-choice{padding:14px;border:1px solid #d9dfd9;border-radius:10px;margin:16px 0;background:#fff;min-width:0}
 .merchant-statement .statement-fee-choice legend{font-size:14px;font-weight:700;padding:0 6px}
