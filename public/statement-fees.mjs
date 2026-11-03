@@ -67,6 +67,12 @@ export function calculateStatementCosts(values = {}, review, baseFigures = {}) {
     effectiveRate: turnover > 0 && charges !== null ? charges / turnover * 100 : null,
   };
   const adjusted = complete && months !== null && charges !== null ? charges + separateMonthly * months : null;
+  const statementRateMessage = turnover === null || charges === null
+    ? 'Enter turnover and total charges to calculate the rate.'
+    : turnover === 0 ? 'Turnover must be greater than zero to calculate a rate.' : '';
+  const adjustedRateMessage = statementRateMessage || (!complete
+    ? 'Confirm terminal rental and PCI fees.'
+    : months === null ? 'Confirm months covered.' : '');
   return {
     monthlyVolume: turnover !== null && months !== null ? round(turnover / months) : null,
     annualTpv: turnover !== null && months !== null ? round(turnover / months * 12) : null,
@@ -77,6 +83,10 @@ export function calculateStatementCosts(values = {}, review, baseFigures = {}) {
       effectiveRate: adjusted !== null && turnover > 0 ? adjusted / turnover * 100 : null,
     }),
     statementMonthlyCharges: baseMonthly === null ? null : round(baseMonthly),
+    statementEffectiveRate: original.effectiveRate,
+    statementRateMessage,
+    adjustedRateMessage,
+    adjustedRateReady: complete && adjusted !== null && turnover > 0,
     separateMonthlyCharges: complete && months !== null ? round(separateMonthly) : null,
     adjustedPeriodCharges: adjusted === null ? null : round(adjusted),
     feeReviewComplete: complete,
@@ -95,6 +105,7 @@ export function applyStatementFees(patch, review) {
 }
 
 const money = value => value == null ? 'Awaiting review' : new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(value);
+const rate = value => value == null ? null : `${value.toFixed(2)}%`;
 
 export function createFeeReviewPanel(React) {
   const h = React.createElement;
@@ -104,6 +115,10 @@ export function createFeeReviewPanel(React) {
     const figures = calculateStatementCosts(values, review);
     const change = (key, field, next) => onChange({ ...review, [key]: { ...review[key], [field]: next } });
     return h('section', { className: 'statement-fee-review', 'aria-label': 'Terminal rental and PCI fee review' },
+      h('div', { className: 'statement-rate-preview', 'aria-label': 'Statement rate before separate fees' },
+        h('span', null, 'Statement effective rate'),
+        h(figures.statementEffectiveRate == null ? 'span' : 'strong', { className: figures.statementEffectiveRate == null ? 'statement-rate-message' : undefined }, rate(figures.statementEffectiveRate) ?? figures.statementRateMessage),
+        h('small', null, 'Statement charges only. Separately billed fees may increase the total-cost rate.')),
       h('h4', null, 'Check terminal rental and PCI fees'),
       h('p', null, 'Are these costs already included in the total charges above? Add only amounts billed separately. The comparison recalculates as you answer.'),
       ...Object.entries(NAMES).map(([key, label]) => {
@@ -131,8 +146,10 @@ export function createFeeReviewPanel(React) {
         h('div', null, h('dt', null, 'Separate fees / month'), h('dd', null, money(figures.separateMonthlyCharges))),
         h('div', null, h('dt', null, 'Total current cost / month'), h('dd', null, money(figures.monthlyCharges)))),
       h('p', { role: 'status', className: 'statement-fee-status' }, figures.feeReviewComplete
-        ? 'Fee review complete. Check the updated figures below, then apply and save the customer.'
+        ? figures.adjustedRateReady
+          ? 'Fee review complete. Check the updated figures below, then apply and save the customer.'
+          : `Fee answers are complete. ${figures.adjustedRateMessage}`
         : 'Answer both fee questions and enter any separate amounts before applying the total charges.'),
-      h('p', { className: 'statement-fee-help' }, 'The current effective cost includes the confirmed fees. Any unrecorded fees from a new provider are excluded from savings estimates.'));
+      h('p', { className: 'statement-fee-help' }, 'The rate including separate fees uses your confirmed costs. Any unrecorded fees from a new provider are excluded from savings estimates.'));
   };
 }

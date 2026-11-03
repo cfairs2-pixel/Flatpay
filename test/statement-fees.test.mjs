@@ -151,6 +151,7 @@ test('unresolved rental or PCI questions do not produce an adjusted cost compari
     review({ status: 'included' }, { status: 'unknown' }),
   ]) {
     const figures = calculateStatementCosts(annualValues, input, annualFigures);
+    close(figures.statementEffectiveRate, 0.75);
     assert.equal(figures.feeReviewComplete, false);
     for (const key of ['monthlyCharges', 'annualCharges', 'effectiveRate', 'adjustedPeriodCharges']) {
       assert.equal(figures[key], null, key);
@@ -158,6 +159,67 @@ test('unresolved rental or PCI questions do not produce an adjusted cost compari
     assert.equal(figures.monthlyVolume, 40000);
     assert(figures.warnings.length > 0);
   }
+});
+
+test('statement rate is available immediately before fee answers or period confirmation', () => {
+  for (const periodMonths of [undefined, '', 0, -1, NaN, 12]) {
+    const figures = calculateStatementCosts({ turnover: 120000, totalCharges: 900, periodMonths }, emptyFeeReview());
+    close(figures.statementEffectiveRate, 0.75);
+    assert.equal(figures.effectiveRate, null);
+    assert.equal(figures.adjustedRateReady, false);
+    assert.match(figures.adjustedRateMessage, /Confirm terminal rental and PCI/);
+  }
+});
+
+test('separate fees change only the total-cost rate, leaving the original statement rate visible', () => {
+  const figures = calculateStatementCosts(annualValues, review(separate(40, 'monthly'), separate(120, 'annual')));
+  close(figures.statementEffectiveRate, 0.75);
+  close(figures.effectiveRate, 0.875);
+  assert.equal(figures.adjustedRateReady, true);
+  assert.equal(figures.adjustedRateMessage, '');
+  const cleared = calculateStatementCosts(annualValues, review(separate('', 'monthly'), { status: 'none' }));
+  close(cleared.statementEffectiveRate, 0.75);
+  assert.equal(cleared.effectiveRate, null);
+  assert.equal(cleared.adjustedRateReady, false);
+});
+
+test('a genuine zero statement charge is displayed as zero percent', () => {
+  const figures = calculateStatementCosts({ periodMonths: 1, turnover: 1000, totalCharges: 0 }, emptyFeeReview());
+  assert.equal(figures.statementEffectiveRate, 0);
+  assert.equal(figures.statementRateMessage, '');
+  assert.equal(figures.effectiveRate, null);
+});
+
+test('missing, zero or invalid rate inputs are explained instead of producing false zero or Infinity', () => {
+  for (const turnover of [undefined, '', 0, -1, NaN, Infinity]) {
+    const figures = calculateStatementCosts({ periodMonths: 1, turnover, totalCharges: 20 }, emptyFeeReview());
+    assert.equal(figures.statementEffectiveRate, null);
+    assert.match(figures.statementRateMessage, /turnover|Turnover/);
+  }
+  for (const totalCharges of [undefined, '', -1, NaN, Infinity]) {
+    const figures = calculateStatementCosts({ periodMonths: 1, turnover: 1000, totalCharges }, emptyFeeReview());
+    assert.equal(figures.statementEffectiveRate, null);
+    assert.match(figures.statementRateMessage, /charges/);
+  }
+});
+
+test('a completed fee review still explains any missing period or calculation inputs', () => {
+  const noPeriod = calculateStatementCosts({ turnover: 120000, totalCharges: 900 }, review());
+  assert.equal(noPeriod.feeReviewComplete, true);
+  assert.equal(noPeriod.adjustedRateReady, false);
+  close(noPeriod.statementEffectiveRate, 0.75);
+  assert.match(noPeriod.adjustedRateMessage, /months covered/);
+  const noTotals = calculateStatementCosts({ periodMonths: 12 }, review());
+  assert.equal(noTotals.adjustedRateReady, false);
+  assert.match(noTotals.adjustedRateMessage, /turnover and total charges/);
+});
+
+test('statement rate uses the original totals even if caller figures contain a stale rate', () => {
+  const values = { periodMonths: 12, turnover: 240000.01, totalCharges: 1000.01 };
+  const figures = calculateStatementCosts(values, emptyFeeReview(), { statementEffectiveRate: 99, effectiveRate: 99 });
+  close(figures.statementEffectiveRate, values.totalCharges / values.turnover * 100);
+  assert.notEqual(figures.statementEffectiveRate, (83.33 / 20000) * 100);
+  assert.equal(figures.effectiveRate, null);
 });
 
 test('legacy statements retain their original figures until a fee review is supplied', () => {

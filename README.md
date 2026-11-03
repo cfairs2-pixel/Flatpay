@@ -61,6 +61,8 @@ During review, answer the terminal-rental and PCI-fee questions. Choose **alread
 
 The current cost and effective rate recalculate immediately. Apply the reviewed figures, then **Save customer**. The original total and fee answers are stored together. Use **Edit fees and recalculate** on a saved statement to change an answer without uploading it again; repeated application does not add the fees twice. Unrecorded new-provider fees remain excluded from savings estimates.
 
+The **Statement effective rate** appears as soon as valid turnover and total charges are available: charges ÷ turnover × 100. It does not wait for months covered or the fee questions. **Rate including separate fees** is shown separately once the period and fee answers are ready. Missing inputs are explained beside the result; a genuine zero charge displays 0.00%, while zero turnover cannot produce a rate.
+
 **Account & backups** shows the app version. Releases use versioned module URLs, and an open app checks for an update when you return to it. If an update is available, save any edits and choose **Reload app**; updates never force a reload or clear stored sign-in/data.
 
 ## Email and account access

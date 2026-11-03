@@ -39,3 +39,9 @@ The photo path now requests Tesseract's word boxes and passes matched total cand
 The original inline photo was not available as a local image file. Its exact failing recognised text is still requested from the user. These checks establish the reproduced layout fix, not a claim that every number on the original photograph has been verified by OCR.
 
 The layout-aware release is live at build `2028704f4d270f51`. Ten production artifacts (including the version manifest and layout extractor) returned HTTP 200 and matched the built release byte for byte. The live sign-in/reset forms, manifest scope and icons also pass rendering checks using the configured trusted HTTPS transport.
+
+## Immediate statement-rate display
+
+An incomplete fee review previously hid the only displayed rate, even when both original statement totals were available. Build `697dc948a22e8d27` exposes the original statement rate immediately and labels the separately adjusted total-cost rate distinctly. The fee/apply safeguards remain unchanged.
+
+All 118 tests pass. A phone-sized browser check confirms the rate before fee answers, without a period, after adding or clearing fees, after applying and reopening a saved review, for genuine zero charges and for zero turnover. The statement rate uses the original totals without monthly rounding. Missing inputs produce actionable explanations, and completed fee answers alone no longer imply a completed calculation.
