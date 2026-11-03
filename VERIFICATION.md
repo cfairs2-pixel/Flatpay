@@ -1,47 +1,26 @@
-# Verification and remaining setup
+# Verification
 
-Checked on 30 October 2026.
+The app is live at https://cfairs2-pixel.github.io/Flatpay/.
 
-- Nine PostgreSQL tests passed using PGlite, applying the actual migration. They cover authenticated access, row-level isolation, denied direct writes/helper access, stale customer and assistant revisions, transactional recovery and restore, malformed imports, legacy meeting notes, and the 10 MB quota/export boundary.
-- Browser checks passed in two separate phone-sized Chromium contexts using the official Supabase browser SDK, simulated Supabase HTTP endpoints and the actual PostgreSQL migration. They cover sign-up, customer creation, shared records, the mobile account button, recovery points, backup download/preview/restore, and retaining unsaved edits after session expiry. This fixture did not write test records to your live project.
-- Service-worker checks passed at the site root and under `/Flatpay/`: API/auth bypass, no cached customer records, offline fallback, scoped assets and logout cache clearing.
-- Application syntax, installation paths and the static production build passed.
-- Read-only checks against the live Supabase project confirmed that the configured public key is accepted and email sign-up/confirmation is enabled. All four application tables (`flatpay_accounts`, `flatpay_deals`, `flatpay_assistant` and `flatpay_backups`) are now present and reject anonymous requests with HTTP 401. The `flatpay_workspace` RPC is present and rejects an anonymous call with HTTP 401.
-- The live app at `https://cfairs2-pixel.github.io/Flatpay/` serves the new version. Ten representative hosted files returned HTTP 200 with the expected MIME types and SHA-256 fingerprints identical to the validated production build, including the HTML, workspace, Supabase adapter/client configuration, service worker, install manifest, SDK and app icons.
-- The live page's sign-in and password-reset request screens render at a 390-pixel phone viewport without horizontal overflow. Manifest scope and icon URLs resolve under `/Flatpay/`. This browser check fetched the real live resources through the environment's trusted HTTPS transport; it created no accounts and sent no emails.
+Current build: `697dc948a22e8d27`. Static release: `23bcd3f72684b8da08511fb8493da0585bd45f8e` on `gh-pages`. Editable source remains in the source PR.
 
-The live database migration is now confirmed present. No live user accounts or customer records were created by these checks. Authenticated live sign-up/sign-in, live record operations, actual email delivery and installation on physical iPhone/Android devices remain unverified. Supabase-managed backup retention and any SMTP provider remain settings for the project owner to confirm.
+## Current checks
 
-The static release is on `gh-pages` at commit `691de75bf8073af88eb2813e1d3069625fcaeb8f`, and the live hosted files have been verified. Its existing **Publish myflatpay** workflow remains the publishing route; editable source remains in its source PR. Direct Chromium HTTPS navigation is limited by the execution environment's proxy certificate trust, so live service-worker registration and physical phone installation were not verified. TLS remained enabled for all HTTP verification.
+- All 118 regression tests pass. Coverage includes account isolation and grants, stale revisions, atomic backup restore, fee metadata, annual parsing, 38 OCR-position cases, cache/startup failures, rate readiness and versioned module updates.
+- Real file-upload browser checks use the packaged OCR worker, WASM core and English model on flat, perspective-skewed and stacked synthetic annual summaries. They exercise upload through displayed totals, explicit replacement of existing figures, saved fee review and repeat application without double counting.
+- A phone-sized rate check verifies the statement rate before any fee answer or period confirmation. Added or cleared fees affect only the separately adjusted rate. Saved reopening, true zero charges, zero turnover and missing-input explanations pass. The fee panel fits a 390-pixel viewport.
+- Statement rates use the raw statement totals rather than rounded monthly figures. Fee answers alone do not imply a completed calculation when period, turnover or charges are missing. The adjusted-rate/apply safeguards remain in place.
+- Production syntax and build checks pass. The complete generated module graph carries the same content-derived build ID. Account & backups shows it; an open app can offer an explicit save-then-reload update without forced reloads, sign-out or data clearing.
+- Seven current hosted artifacts, including HTML, version manifest, workspace, fee calculator/style, cloud client and domain module, returned HTTP 200 and matched the validated build byte for byte.
+- Earlier read-only live Supabase checks confirmed all four application tables and the workspace RPC exist and reject anonymous access with HTTP 401. Email authentication and email confirmation are enabled.
+- Service-worker checks cover project scope, API/auth bypass, optional-storage failures, offline fallback and logout cache clearing. Customer API responses and documents are not cached by it.
 
-To complete account setup: verify `https://cfairs2-pixel.github.io/Flatpay/` in Supabase Auth's Site URL and redirect allowlist, then sign up, confirm the email and install from Safari/Chrome. Keep a downloaded full backup outside the database.
+## Limits
 
-## Statement reader and separate-fee update
+The original inline photo was reviewed visually but was not available as a local image file. Its exact failing recognised text was requested. Synthetic OCR fixtures reproduce and validate the column-association defect; they do not establish that every digit in the original photograph was recognised correctly. No customer photograph or actual statement amounts are published in the regression fixtures.
 
-- All 64 regression tests pass: OCR startup failure/timeout cleanup, optional cache failures, annual-summary parsing, fee calculation and review validation, existing database security, and save/export/restore of fee metadata.
-- A phone-sized Chromium check runs the actual packaged OCR worker, WASM core and English model against a synthetic annual-summary image. It reproduces OCR replacing a thousands comma with a dot; the parser recovers the unambiguous value and shows a review warning. Startup phases, annual totals and monthly averages pass.
-- The rendered phone review passes terminal/PCI inclusion prompts, monthly/annual normalization, applying adjusted costs, reopening saved answers, and repeated application without double counting. The fee panel fits a 390-pixel viewport.
-- PostgreSQL round-trip testing confirms the existing schema preserves `statementAnalysis.feeReview` and the unadjusted statement totals. No database migration is needed for the added optional metadata.
-- The example photo was reviewed visually and its labels tested as text. End-to-end image OCR used a synthetic document with the annual-summary layout, not the original attached photo. No customer statement image or real statement amounts are included in the public regression fixtures.
+No live customer records or accounts were created or changed during these checks. Authenticated live account operations, email delivery and physical iPhone/Android installation remain user acceptance checks. The exact production URL must be allowed in Supabase Auth configuration. Provider backup retention and SMTP configuration remain project-owner settings.
 
-The reader and fee-review release is live: the HTML, workspace, domain validation, annual-summary parser, fee module, fee stylesheet and service worker each return HTTP 200 and match the production build byte for byte.
+Direct Chromium HTTPS navigation is limited by the execution environment's proxy certificate trust. Live rendering checks used the real hosted assets through the configured trusted HTTPS transport, with TLS verification enabled. Physical-device service-worker registration was not verified.
 
-## Layout-aware OCR correction
-
-The earlier OCR test image did not expose interleaved summary boxes. Further testing reproduced a substantive failure: OCR recognised the correct currency amounts, but the text-only parser lost their association with labels. Increasing image resolution did not fix that association.
-
-The photo path now requests Tesseract's word boxes and passes matched total candidates through the actual review UI. Labelled totals can be matched to values to their right or below; average-transaction and tariff figures are excluded. Ambiguous, shared or malformed matches require manual review. Low-confidence OCR has an explicit warning. Manual text corrections do not reuse image matches.
-
-- All 112 tests pass, including 38 spatial extraction cases based on three captured synthetic OCR layouts, the parser integration, and seven build/update tests.
-- Real file-upload browser checks pass for clean and perspective-skewed synthetic annual summaries. They exercise upload → OCR → label/value matching → displayed totals → explicit replacement of existing customer figures. The previously passing stacked-row photo and terminal/PCI fee review continue to pass.
-- Build `2028704f4d270f51` versions the full application module graph, publishes `version.json`, and displays the version under Account & backups. A safe update banner asks the user to save before choosing to reload; it does not force a reload or clear data.
-
-The original inline photo was not available as a local image file. Its exact failing recognised text is still requested from the user. These checks establish the reproduced layout fix, not a claim that every number on the original photograph has been verified by OCR.
-
-The layout-aware release is live at build `2028704f4d270f51`. Ten production artifacts (including the version manifest and layout extractor) returned HTTP 200 and matched the built release byte for byte. The live sign-in/reset forms, manifest scope and icons also pass rendering checks using the configured trusted HTTPS transport.
-
-## Immediate statement-rate display
-
-An incomplete fee review previously hid the only displayed rate, even when both original statement totals were available. Build `697dc948a22e8d27` exposes the original statement rate immediately and labels the separately adjusted total-cost rate distinctly. The fee/apply safeguards remain unchanged.
-
-All 118 tests pass. A phone-sized browser check confirms the rate before fee answers, without a period, after adding or clearing fees, after applying and reopening a saved review, for genuine zero charges and for zero turnover. The statement rate uses the original totals without monthly rounding. Missing inputs produce actionable explanations, and completed fee answers alone no longer imply a completed calculation.
+Keep downloaded full backups outside the database. The app's 60 recovery points are in the same Supabase database and do not replace independent disaster backups.
