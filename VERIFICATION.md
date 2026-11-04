@@ -2,7 +2,7 @@
 
 The app is live at https://cfairs2-pixel.github.io/Flatpay/.
 
-Current validated build: `bc0a646d3de7d55b`. Editable source remains in the source PR. Publication verification is recorded below after release.
+Current published build: `bc0a646d3de7d55b`. Static release: `df4da6c0687729ff73a1827df96c2c4708744d5d` on `gh-pages`. Editable source remains in the source PR.
 
 ## Current checks
 
@@ -12,7 +12,7 @@ Current validated build: `bc0a646d3de7d55b`. Editable source remains in the sour
 - A phone-sized rate check verifies the statement rate before any fee answer or period confirmation. Added or cleared fees affect only the separately adjusted rate. Saved reopening, true zero charges, zero turnover and missing-input explanations pass. The fee panel fits a 390-pixel viewport.
 - Statement rates use the raw statement totals rather than rounded monthly figures. Fee answers alone do not imply a completed calculation when period, turnover or charges are missing. The adjusted-rate/apply safeguards remain in place.
 - Production syntax and build checks pass. The complete generated module graph carries the same content-derived build ID. Account & backups shows it; an open app can offer an explicit save-then-reload update without forced reloads, sign-out or data clearing.
-- The preceding build's hosted assets matched its validated output. The current release will be checked against the deployed HTML, version manifest and reader modules before being reported as published.
+- Eight current hosted artifacts (HTML, version manifest, workspace, layout, summary, fees, cloud client and domain module) returned HTTP 200 and matched the validated output byte for byte.
 - Earlier read-only live Supabase checks confirmed all four application tables and the workspace RPC exist and reject anonymous access with HTTP 401. Email authentication and email confirmation are enabled.
 - Service-worker checks cover project scope, API/auth bypass, optional-storage failures, offline fallback and logout cache clearing. Customer API responses and documents are not cached by it.
 
