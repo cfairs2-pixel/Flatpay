@@ -36,7 +36,7 @@ function readLines(data) {
   return lines.reduce((count, line) => count + line.length, 0) <= 12000 ? lines : [];
 }
 
-function moneyValue(raw, allowE) {
+function moneyValue(raw, allowE, allowBare) {
   const text = normalize(raw).replace(/\u2212/g, '-');
   if (/[-()%]|\bCR\b|CR$/i.test(text)) return { invalid: true };
   const currency = allowE ? '(?:£|GBP|E)' : '(?:£|GBP)';
@@ -49,7 +49,11 @@ function moneyValue(raw, allowE) {
     valueText = dotted[1] + pieces.join('') + '.' + pennies;
     repaired = true;
   }
-  const matched = valueText.match(new RegExp(`^${currency}\\s*((?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d{1,2})?)$`, 'i'));
+  const matched = valueText.match(new RegExp(`^${currency}\\s*((?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d{1,2})?)$`, 'i'))
+    // A dropped pound glyph must not erase a clearly labelled amount. Require
+    // GBP elsewhere and exactly two decimal places; never infer money from an
+    // integer such as a transaction count, year or merchant category code.
+    || (allowBare && valueText.match(/^((?:\d{1,3}(?:,\d{3})+|\d+)\.\d{2})$/));
   if (!matched) return { invalid: true };
   const value = Number(matched[1].replaceAll(',', ''));
   return Number.isFinite(value) && value >= 0 && value <= 1e15 ? { value, repaired } : { invalid: true };
@@ -62,7 +66,8 @@ function segmentsAndAmounts(lines, typicalHeight, allowE) {
     const words = lines[lineIndex].map((word, wordIndex) => ({ ...word, id: `${lineIndex}:${wordIndex}` }));
     const used = new Set();
     for (let index = 0; index < words.length; index++) {
-      if (!currencyWord(words[index].text)) continue;
+      const bareMoney = allowE && /^[+−\-(]*\d[\d,.]*\.\d+(?:CR|%|\))?$/i.test(words[index].text);
+      if (!currencyWord(words[index].text) && !bareMoney) continue;
       let start = index, end = index;
       const adjacent = (left, right) => right.bbox.x0 - left.bbox.x1 <= Math.max(height(left.bbox), height(right.bbox)) * 1.7;
       if (/^(?:£|GBP|E)$/i.test(words[index].text) && words[index + 1] && /^[\d.,+-]+$/.test(words[index + 1].text) && adjacent(words[index], words[index + 1])) end++;
@@ -71,7 +76,7 @@ function segmentsAndAmounts(lines, typicalHeight, allowE) {
       const group = words.slice(start, end + 1);
       group.forEach(word => used.add(word.id));
       const raw = group.map(word => word.text).join(' ');
-      const parsed = moneyValue(raw, allowE);
+      const parsed = moneyValue(raw, allowE, allowE);
       const knownConfidence = group.map(word => word.confidence).filter(value => value !== null);
       amounts.push({ ...parsed, raw, bbox: union(group), confidence: knownConfidence.length ? Math.min(...knownConfidence) : null, ids: group.map(word => word.id), id: group.map(word => word.id).join('|') });
       index = end;

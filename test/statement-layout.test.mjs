@@ -230,3 +230,73 @@ test('right-hand values below the first label baseline can match without accepti
   assert.deepEqual(totals(result), { turnover: 480000 });
   assert.deepEqual(result.blockedFields, []);
 });
+
+test('a dropped currency glyph keeps labelled GBP totals through the complete summary parser', () => {
+  const data = document([
+    line('Your total card transactions', 100, 200), line('89,765.43', 650, 200),
+    line('Your total charges', 100, 400), line('987.65', 650, 400),
+  ], 'Your card payments summary. Last 12 months. All amounts in GBP.\nYour total card transactions 89,765.43\nYour total charges 987.65');
+  const baseline = extendStatementSummary(data.text);
+  assert.deepEqual(baseline.values, { turnover: 89765.43, totalCharges: 987.65, periodMonths: 12 });
+  const layout = extractStatementLayout(data);
+  assert.deepEqual(totals(layout), { turnover: 89765.43, totalCharges: 987.65 });
+  assert.deepEqual(layout.blockedFields, []);
+  assert.equal(layout.candidates[0].raw, '89,765.43');
+  assert.deepEqual(extendStatementSummary(data.text, baseline, layout).values, baseline.values);
+});
+
+test('interleaved real OCR geometry still matches decimal amounts if their pound glyphs are lost', () => {
+  const source = fixture('flat').ocrData;
+  const data = JSON.parse(JSON.stringify(source));
+  data.text = data.text.replaceAll('£', '') + '\nAll amounts in GBP.';
+  for (const block of data.blocks) for (const paragraph of block.paragraphs) for (const row of paragraph.lines) {
+    for (const token of row.words) token.text = token.text.replaceAll('£', '');
+  }
+  const result = extractStatementLayout(data);
+  assert.deepEqual(totals(result), { turnover: 123456.78, totalCharges: 1234.56 });
+  assert.deepEqual(result.blockedFields, []);
+  assert.deepEqual(extendStatementSummary(data.text, undefined, result).values, { turnover: 123456.78, totalCharges: 1234.56, periodMonths: 12 });
+});
+
+test('bare decimal amounts require an explicit GBP cue', () => {
+  for (const context of ['Your card payments summary. Last 12 months.', 'Your card payments summary. Last 12 months. E10.00']) {
+    const result = extractStatementLayout(document([line('Your total charges', 100, 100), line('123.45', 500, 100)], context));
+    assert.deepEqual(result.candidates, []);
+    assert(result.blockedFields.includes('totalCharges'));
+  }
+});
+
+test('bare decimal candidates preserve sign, percentage, credit and grouping safeguards', () => {
+  for (const raw of ['-123.45', '(123.45)', '123.45CR', '123.45%', '+123.45', '1,23.45', '123.4', '123.456']) {
+    const result = extractStatementLayout(document([
+      line('Your total charges', 100, 100), line(raw, 500, 100), line('£500.00', 500, 180),
+    ]));
+    assert.deepEqual(result.candidates, [], raw);
+    assert(result.blockedFields.includes('totalCharges'), raw);
+  }
+  for (const suffix of ['CR', '%', ')']) {
+    const result = extractStatementLayout(document([
+      line('Your total charges', 100, 100),
+      { words: [word('123.45', 500, 100, 590, 130), word(suffix, 595, 100, 620, 130)] },
+    ]));
+    assert.deepEqual(result.candidates, [], suffix);
+    assert(result.blockedFields.includes('totalCharges'), suffix);
+  }
+});
+
+test('bare integers, averages and tied decimal totals cannot fill a missing total', () => {
+  for (const raw of ['12345', '2026', '7538']) {
+    const result = extractStatementLayout(document([line('Your total charges', 100, 100), line(raw, 500, 100)]));
+    assert.deepEqual(result.candidates, [], raw);
+  }
+  const average = extractStatementLayout(document([
+    line('Your total charges', 100, 200),
+    line('Your average transaction', 700, 200), line('22.50', 700, 250),
+  ]));
+  assert.deepEqual(average.candidates, []);
+  const tied = extractStatementLayout(document([
+    line('Your total charges', 100, 100), line('100.00', 500, 100), line('200.00', 500, 100),
+  ]));
+  assert.deepEqual(tied.candidates, []);
+  assert(tied.blockedFields.includes('totalCharges'));
+});

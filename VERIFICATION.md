@@ -2,16 +2,17 @@
 
 The app is live at https://cfairs2-pixel.github.io/Flatpay/.
 
-Current build: `697dc948a22e8d27`. Static release: `23bcd3f72684b8da08511fb8493da0585bd45f8e` on `gh-pages`. Editable source remains in the source PR.
+Current validated build: `bc0a646d3de7d55b`. Editable source remains in the source PR. Publication verification is recorded below after release.
 
 ## Current checks
 
-- All 118 regression tests pass. Coverage includes account isolation and grants, stale revisions, atomic backup restore, fee metadata, annual parsing, 38 OCR-position cases, cache/startup failures, rate readiness and versioned module updates.
+- All 123 regression tests pass. Coverage includes account isolation and grants, stale revisions, atomic backup restore, fee metadata, annual parsing, 43 OCR-position cases, cache/startup failures, rate readiness and versioned module updates.
+- An actual synthetic PNG upload without pound glyphs on its totals reproduces the previous layout check dropping both figures. With an explicit GBP cue elsewhere, the corrected reader retains turnover 123,456.78, charges 1,234.56 and a 12-month period, shows a 1.00% statement rate, then a 1.24% adjusted rate after separate monthly rental of 20 and annual PCI of 60. Applying and reopening retains the original totals and the fee review. This exercises the packaged OCR engine and phone-sized review screen, not just a parser mock.
 - Real file-upload browser checks use the packaged OCR worker, WASM core and English model on flat, perspective-skewed and stacked synthetic annual summaries. They exercise upload through displayed totals, explicit replacement of existing figures, saved fee review and repeat application without double counting.
 - A phone-sized rate check verifies the statement rate before any fee answer or period confirmation. Added or cleared fees affect only the separately adjusted rate. Saved reopening, true zero charges, zero turnover and missing-input explanations pass. The fee panel fits a 390-pixel viewport.
 - Statement rates use the raw statement totals rather than rounded monthly figures. Fee answers alone do not imply a completed calculation when period, turnover or charges are missing. The adjusted-rate/apply safeguards remain in place.
 - Production syntax and build checks pass. The complete generated module graph carries the same content-derived build ID. Account & backups shows it; an open app can offer an explicit save-then-reload update without forced reloads, sign-out or data clearing.
-- Seven current hosted artifacts, including HTML, version manifest, workspace, fee calculator/style, cloud client and domain module, returned HTTP 200 and matched the validated build byte for byte.
+- The preceding build's hosted assets matched its validated output. The current release will be checked against the deployed HTML, version manifest and reader modules before being reported as published.
 - Earlier read-only live Supabase checks confirmed all four application tables and the workspace RPC exist and reject anonymous access with HTTP 401. Email authentication and email confirmation are enabled.
 - Service-worker checks cover project scope, API/auth bypass, optional-storage failures, offline fallback and logout cache clearing. Customer API responses and documents are not cached by it.
 
